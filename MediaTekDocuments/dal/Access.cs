@@ -173,7 +173,7 @@ namespace MediaTekDocuments.dal
         /// <returns>liste d'objets récupérés (ou liste vide)</returns>
         private List<T> TraitementRecup<T> (String methode, String message, String parametres)
         {
-            // trans
+            // transformation : préparation de la liste qui recevra les objets désérialisés
             List<T> liste = new List<T>();
             try
             {
