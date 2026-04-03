@@ -9,6 +9,7 @@ namespace MediaTekDocuments.model
         public int Duree { get; }
         public string Realisateur { get; }
         public string Synopsis { get; }
+        public override string Endpoint => "dvd";
 
         public Dvd(string id, string titre, string image, int duree, string realisateur, string synopsis,
             string idGenre, string genre, string idPublic, string lePublic, string idRayon, string rayon)

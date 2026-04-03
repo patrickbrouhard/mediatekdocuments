@@ -8,6 +8,7 @@ namespace MediaTekDocuments.model
     {
         public string Periodicite { get; set; }
         public int DelaiMiseADispo { get; set; }
+        public override string Endpoint => "dvd";
 
         public Revue(string id, string titre, string image, string idGenre, string genre,
             string idPublic, string lePublic, string idRayon, string rayon,

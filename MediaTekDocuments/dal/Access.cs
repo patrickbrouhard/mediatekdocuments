@@ -1,12 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using MediaTekDocuments.manager;
 using MediaTekDocuments.model;
-using MediaTekDocuments.manager;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Linq;
+using System;
+using System.Collections.Generic;
 using System.Configuration;
+using System.Diagnostics;
 using System.Linq;
+using static MediaTekDocuments.view.FrmMediatek;
 
 namespace MediaTekDocuments.dal
 {
@@ -35,6 +37,14 @@ namespace MediaTekDocuments.dal
         /// méthode HTTP pour insert
         /// </summary>
         private const string POST = "POST";
+        /// <summary>
+        /// méthode HTTP pour update
+        /// </summary>
+        private const string PUT = "PUT";
+        /// <summary>
+        /// méthode HTTP pour delete
+        /// </summary>
+        private const string DELETE = "DELETE";
         /// <summary>
         /// méthode HTTP pour update
 
@@ -161,6 +171,120 @@ namespace MediaTekDocuments.dal
                 Console.WriteLine(ex.Message);
             }
             return false;
+        }
+        /// <summary>
+        /// Exécute une commande API distante. 
+        /// Crée pour pouvoir récupérer le json de l'API et en affichant 
+        /// les champs "code" et "result" de la réponse. 
+        /// Retourne true si le code de réponse est "200" et que le résultat est supérieur à zéro ; 
+        /// sinon, retourne false.
+        /// /// <param name="methode">La méthode HTTP à utiliser pour l'appel API, telle que "GET" ou "POST". Ne peut pas être null ou vide.</param>
+        /// <param name="endpoint">L'URL ou le chemin de l'endpoint de l'API à appeler. Ne peut pas être null ou vide.</param>
+        /// <param name="parametres">Les paramètres à inclure dans la requête API, sous forme de chaîne. Peut être vide si aucun paramètre n'est
+        /// requis.</param>
+        /// <returns>true si la commande API retourne un code de réponse "200" et un résultat supérieur à zéro ; sinon, false.</returns>
+        private bool ExecuteCommande(string methode, string endpoint, string parametres)
+        {
+            try
+            {
+                JObject retour = api.RecupDistant(methode, endpoint, parametres);
+
+                string code = (string)retour["code"];
+
+                int result = 0;
+                if (retour["result"] != null)
+                {
+                    int.TryParse(retour["result"].ToString(), out result);
+                }
+
+                Debug.WriteLine($"Code API : {code}");
+                Debug.WriteLine($"Résultat API : {result}");
+
+                return code == "200" && result > 0;
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine("Catch de la méthode Access.ExecuteCommande");
+                Debug.WriteLine(ex.Message);
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// Ajoute un document à la base de données
+        /// </summary>
+        /// <remarks>Cette méthode tente de sérialiser et d'envoyer le document à un service distant. Si
+        /// une erreur se produit lors de l'opération, la méthode retourne false et aucune exception n'est
+        /// propagée.</remarks>
+        /// <param name="document">Le document à ajouter. Ne peut pas être null.</param>
+        /// <returns>true si le document a été ajouté avec succès ; sinon, false.</returns>
+        public bool AjouterDocument(Document document)
+        {
+            string endpoint = document.Endpoint;
+            Debug.WriteLine($"Endpoint pour la création : {endpoint}");
+
+            string json = JsonConvert.SerializeObject(document, new CustomDateTimeConverter());
+            Debug.WriteLine($"JSON envoyé pour la création : {json}");
+
+            try
+            {
+                return ExecuteCommande(POST, endpoint, "champs=" + json);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+                return false;
+            }
+        }
+        /// <summary>
+        /// Met à jour un document existant dans la base de données
+        /// </summary>
+        /// <remarks>Cette méthode tente de mettre à jour le document spécifié via une requête HTTP PUT.
+        /// Si une erreur se produit lors de la communication avec l'API ou si la réponse n'est pas valide, la méthode
+        /// retourne false.</remarks>
+        /// <param name="document">Le document à modifier. Ne peut pas être null. Les propriétés du document déterminent les champs mis à jour.</param>
+        /// <returns>true si la modification du document a réussi ; sinon, false.</returns>
+        public bool ModifierDocument(Document document)
+        {
+            string endpoint = $"{document.Endpoint}/{document.Id}";
+            Debug.WriteLine($"Endpoint pour la modification : {endpoint}");
+
+            string json = JsonConvert.SerializeObject(document, new CustomDateTimeConverter());
+            Debug.WriteLine($"JSON envoyé pour la modification : {json}");
+
+            try
+            {
+                return ExecuteCommande(PUT, endpoint, "champs=" + json);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+                return false;
+            }
+        }
+
+        public bool SupprimerDocument(Document document)
+        {
+            string json = JsonConvert.SerializeObject(new
+            {
+                id = document.Id
+            });
+
+            string encodedJson = Uri.EscapeDataString(json);
+
+            string endpoint = $"{document.Endpoint}/{encodedJson}";
+
+            Debug.WriteLine($"Endpoint pour la suppression : {endpoint}");
+
+            try
+            {
+                return ExecuteCommande(DELETE, endpoint, null);
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine(ex.Message);
+                return false;
+            }
         }
 
         /// <summary>
