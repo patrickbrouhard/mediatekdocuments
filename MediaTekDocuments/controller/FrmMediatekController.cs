@@ -1,6 +1,9 @@
-﻿using System.Collections.Generic;
+﻿using MediaTekDocuments.dal;
+using MediaTekDocuments.Dtos;
 using MediaTekDocuments.model;
-using MediaTekDocuments.dal;
+using System;
+using System.Collections.Generic;
+using static MediaTekDocuments.view.FrmMediatek;
 
 namespace MediaTekDocuments.controller
 {
@@ -95,6 +98,23 @@ namespace MediaTekDocuments.controller
         public bool CreerExemplaire(Exemplaire exemplaire)
         {
             return access.CreerExemplaire(exemplaire);
+        }
+
+        public bool SauvegarderDocument(TypeMedia type, DocumentDto dto, bool isNew)
+        {
+            System.Diagnostics.Debug.WriteLine($"isNew = {isNew}");
+            Document doc = DocumentFactory.Create(type, dto);
+
+            if (isNew)
+                return access.AjouterDocument(doc);
+            else
+                return access.ModifierDocument(doc);
+        }
+
+        public bool SupprimerDocument(TypeMedia type, string id)
+        {
+            Document doc = DocumentFactory.Create(type, new DocumentDto { Id = id });
+            return access.SupprimerDocument(doc);
         }
     }
 }
