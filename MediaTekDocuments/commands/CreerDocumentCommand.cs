@@ -3,11 +3,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static MediaTekDocuments.view.FrmMediatek;
 
-namespace MediaTekDocuments.Dtos
+namespace MediaTekDocuments.commands
 {
-    public class DocumentDto
+    public class CreerDocumentCommand
     {
+        public TypeMedia Type { get; set; }
+
         public string Id { get; set; }
         public string Titre { get; set; }
         public string Image { get; set; }

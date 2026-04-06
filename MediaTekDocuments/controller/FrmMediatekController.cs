@@ -1,5 +1,5 @@
-﻿using MediaTekDocuments.dal;
-using MediaTekDocuments.Dtos;
+﻿using MediaTekDocuments.commands;
+using MediaTekDocuments.dal;
 using MediaTekDocuments.model;
 using System;
 using System.Collections.Generic;
@@ -100,10 +100,10 @@ namespace MediaTekDocuments.controller
             return access.CreerExemplaire(exemplaire);
         }
 
-        public bool SauvegarderDocument(TypeMedia type, DocumentDto dto, bool isNew)
+        public bool SauvegarderDocument(CreerDocumentCommand cmd, bool isNew)
         {
             System.Diagnostics.Debug.WriteLine($"isNew = {isNew}");
-            Document doc = DocumentFactory.Create(type, dto);
+            Document doc = DocumentFactory.Creer(cmd);
 
             if (isNew)
                 return access.AjouterDocument(doc);
@@ -113,7 +113,7 @@ namespace MediaTekDocuments.controller
 
         public bool SupprimerDocument(TypeMedia type, string id)
         {
-            Document doc = DocumentFactory.Create(type, new DocumentDto { Id = id });
+            Document doc = DocumentFactory.Creer(new CreerDocumentCommand { Type = type, Id = id });
             return access.SupprimerDocument(doc);
         }
     }
