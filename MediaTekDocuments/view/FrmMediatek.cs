@@ -1,5 +1,5 @@
-﻿using MediaTekDocuments.controller;
-using MediaTekDocuments.Dtos;
+﻿using MediaTekDocuments.commands;
+using MediaTekDocuments.controller;
 using MediaTekDocuments.model;
 using System;
 using System.Collections.Generic;
@@ -41,12 +41,6 @@ namespace MediaTekDocuments.view
             Revue
         }
 
-        public enum ChampEtat
-        {
-            Protege
-        }
-
-
         /// <summary>
         /// Constructeur : création du contrôleur lié à ce formulaire
         /// </summary>
@@ -54,145 +48,6 @@ namespace MediaTekDocuments.view
         {
             InitializeComponent();
             this.controller = new FrmMediatekController();
-
-            InitTags();
-            InitButtons();
-             // au lancement de l'application, aucune opération n'est en cours, les boutons de validation sont désactivés
-             SetOperationEnCours(false);
-        }
-
-        public void InitTags()
-        {
-            // Livres
-            buttonLivreAjouter.Tag = TypeMedia.Livre;
-            buttonLivreModifier.Tag = TypeMedia.Livre;
-            buttonLivreSupprimer.Tag = TypeMedia.Livre;
-            buttonValiderLivre.Tag = TypeMedia.Livre;
-            buttonAnnulerLivre.Tag = TypeMedia.Livre;
-            txbLivresNumero.Tag = ChampEtat.Protege;
-
-            // DVD
-            buttonDvdAjouter.Tag = TypeMedia.Dvd;
-            buttonDvdModifier.Tag = TypeMedia.Dvd;
-            buttonDvdSupprimer.Tag = TypeMedia.Dvd;
-            buttonValiderDvd.Tag = TypeMedia.Dvd;
-            buttonAnnulerDvd.Tag = TypeMedia.Dvd;
-            txbDvdNumero.Tag = ChampEtat.Protege;
-
-            // Revues
-            buttonRevueAjouter.Tag = TypeMedia.Revue;
-            buttonRevueModifier.Tag = TypeMedia.Revue;
-            buttonRevueSupprimer.Tag = TypeMedia.Revue;
-            buttonValiderRevue.Tag = TypeMedia.Revue;
-            buttonAnnulerRevue.Tag = TypeMedia.Revue;
-            txbRevuesNumero.Tag = ChampEtat.Protege;
-        }
-
-        private void InitButtons()
-        {
-            buttonLivreAjouter.Click += ButtonAction_Click;
-            buttonDvdAjouter.Click += ButtonAction_Click;
-            buttonRevueAjouter.Click += ButtonAction_Click;
-
-            buttonLivreModifier.Click += ButtonAction_Click;
-            buttonDvdModifier.Click += ButtonAction_Click;
-            buttonRevueModifier.Click += ButtonAction_Click;
-
-            buttonLivreSupprimer.Click += ButtonAction_Click;
-            buttonDvdSupprimer.Click += ButtonAction_Click;
-            buttonRevueSupprimer.Click += ButtonAction_Click;
-
-            buttonValiderLivre.Click += buttonFormulaireValider_Click;
-            buttonValiderDvd.Click += buttonFormulaireValider_Click;
-            buttonValiderRevue.Click += buttonFormulaireValider_Click;
-
-            buttonAnnulerLivre.Click += buttonFormulaireAnnuler_Click;
-            buttonAnnulerDvd.Click += buttonFormulaireAnnuler_Click;
-            buttonAnnulerRevue.Click += buttonFormulaireAnnuler_Click;
-        }
-
-        /// <summary>
-        /// Active ou désactive des élément de l'UI en fonction de l'état d'une opération en cours
-        /// </summary>
-        /// <remarks>Lorsque l'opération est en cours, seuls les contrôles de validation et d'annulation
-        /// sont activés pour le type de média spécifié. Les autres onglets sont désactivés, sauf si le paramètre type
-        /// est null.</remarks>
-        /// <param name="enCours">true pour indiquer qu'une opération est en cours et activer les contrôles de validation ; false pour activer
-        /// les contrôles d'ajout, de modification et de suppression.</param>
-        /// <param name="type">Le type de média concerné par l'opération en cours. Si null, tous les onglets restent activés.</param>
-        private void SetOperationEnCours(bool enCours, TypeMedia? type = null)
-        {
-            bool actionsActive = !enCours;
-            bool validationActive = enCours;
-
-            buttonLivreAjouter.Enabled = actionsActive;
-            buttonLivreModifier.Enabled = actionsActive;
-            buttonLivreSupprimer.Enabled = actionsActive;
-            btnLivresNumRecherche.Enabled = actionsActive;
-            buttonValiderLivre.Enabled = validationActive;
-            buttonAnnulerLivre.Enabled = validationActive;
-
-            buttonDvdAjouter.Enabled = actionsActive;
-            buttonDvdModifier.Enabled = actionsActive;
-            buttonDvdSupprimer.Enabled = actionsActive;
-            btnDvdNumRecherche.Enabled = actionsActive;
-            buttonValiderDvd.Enabled = validationActive;
-            buttonAnnulerDvd.Enabled = validationActive;
-
-            buttonRevueAjouter.Enabled = actionsActive;
-            buttonRevueModifier.Enabled = actionsActive;
-            buttonRevueSupprimer.Enabled = actionsActive;
-            btnRevuesNumRecherche.Enabled = actionsActive;
-            buttonValiderRevue.Enabled = validationActive;
-            buttonAnnulerRevue.Enabled = validationActive;
-
-            if (!enCours) // si aucune opération n'est en cours, on :
-            {
-                if (type.HasValue) {
-                    // réaffiche les données de l'onglet concerné par l'opération qui vient de se terminer,
-                    switch (type)
-                    {
-                        case TypeMedia.Livre:
-                            TabLivres_Enter(null, null);
-                            break;
-                        case TypeMedia.Dvd:
-                            tabDvd_Enter(null, null);
-                            break;
-                        case TypeMedia.Revue:
-                            tabRevues_Enter(null, null);
-                            break;
-                    }
-                }   
-
-                // désactive les textboxs des détails,
-                var groupes = new[] { grpLivresInfos, grpDvdInfos, grpRevuesInfos };
-                foreach (var tb in groupes.SelectMany(g => g.Controls.OfType<TextBox>()))
-                {
-                    tb.ReadOnly = true;
-                }
-
-                // réactive tous les onglets,
-                tabLivres.Enabled = true;
-                tabDvd.Enabled = true;
-                tabRevues.Enabled = true;
-
-                return; // et on s'en va.
-            }
-
-            if (type is null) return;
-
-            // On désactive le contenu de tous les autres onglets que celui concerné par l'opération en cours
-            var map = new Dictionary<TypeMedia, TabPage>
-            {
-                { TypeMedia.Livre, tabLivres },
-                { TypeMedia.Dvd, tabDvd },
-                { TypeMedia.Revue, tabRevues }
-            };
-
-            foreach (var t in map.Keys.Where(t => t != type.Value && t != TypeMedia.None))
-            {
-                map[t].Enabled = false;
-            }
         }
 
         /// <summary>
@@ -211,179 +66,18 @@ namespace MediaTekDocuments.view
             }
         }
 
-        public void ButtonAction_Click(object sender, EventArgs e)
+        private bool AreChampsObligatoiresValides(Genre unGenre, Public unPublic, Rayon unRayon)
         {
-            Button btn = sender as Button;
-            if (btn == null || btn.Tag == null)
-                return;
-
-            // TypeMedia depuis Tag
-            var type = (TypeMedia)btn.Tag;
-
-            // Operation depuis le nom du bouton
-            Operation op;
-            if (btn.Name.EndsWith("Ajouter"))
-                op = Operation.Ajouter;
-            else if (btn.Name.EndsWith("Modifier"))
-                op = Operation.Modifier;
-            else if (btn.Name.EndsWith("Supprimer"))
-                op = Operation.Supprimer;
-            else
-                return;
-            operationEnCours = op;
-            TraitementAction(op, type);
-        }
-
-        private void TraitementAction(Operation operation, TypeMedia type)
-        {
-            if (operation == Operation.None || type == TypeMedia.None) {  return; }
-
-            // Désactivation des boutons d'action
-            SetOperationEnCours(true, type);
-
-            var infosMedia = GetTextBoxesAsListFromTags(type);
-
-            if (operation == Operation.Ajouter)
-            {
-                ViderChamps(type);
-            }
-
-            if (operation != Operation.Supprimer)
-            {
-                foreach (var tb in infosMedia)
-                {
-                    tb.ReadOnly = EstProtege(tb);
-                }
-            }
-
-            if (operation == Operation.Supprimer && infosMedia.Count > 0)
-            {
-                string idToDelete = null;
-                foreach (var tb in infosMedia)
-                {
-                    if (tb.Tag is ChampEtat.Protege && !string.IsNullOrEmpty(tb.Text))
-                    {
-                        idToDelete = tb.Text;
-                        break; // on s'arrête après avoir trouvé le premier champ protégé avec une valeur
-                    }
-                }
-
-                Document docToDelete = null;
-
-                switch (type)
-                {
-                    case TypeMedia.Livre:
-                        docToDelete = lesLivres.Find(x => x.Id.Equals(idToDelete));
-                        break;
-                    case TypeMedia.Dvd:
-                        docToDelete = lesDvd.Find(x => x.Id.Equals(idToDelete));
-                        break;
-                    case TypeMedia.Revue:
-                        docToDelete = lesRevues.Find(x => x.Id.Equals(idToDelete));
-                        break;
-                    default:
-                        docToDelete = null;
-                        break;
-                }
-
-                Debug.WriteLine($"ID à supprimer : {idToDelete}, docToDelete.Id : {docToDelete.Id}, type : {type}");
-
-                if (!string.IsNullOrEmpty(docToDelete?.Id))
-                {
-                    SupprimerDocument(docToDelete, type);
-                }
-            }
-        }
-
-        private void SupprimerDocument(Document doc, TypeMedia type)
-        {
-            string id = doc.Id;
-            // affiche un messagebox de confirmation avant de supprimer le document qui indique le titre du document à supprimer
-            DialogResult result = MessageBox.Show(
-                $"Êtes-vous sûr de vouloir supprimer le document '{doc?.Titre}' (id: {id}) ?",
-                "Confirmation de suppression", 
-                MessageBoxButtons.YesNo, MessageBoxIcon.Warning
-                );
-
-            if (result == DialogResult.Yes)
-            {
-                bool succes = controller.SupprimerDocument(type, id);
-                AfficheMessageSucces(succes, "Supression");
-            }
-
-            SetOperationEnCours(false, type);
-            operationEnCours = Operation.None; // réinitialiser l'opération en cours
-
-            Debug.WriteLine($"Bravo, tu as réparé le problème de l'API qui refusait de supprimer.");
-        }
-
-        /// <summary>
-        /// Détermine si le contrôle spécifié est marqué comme protégé en fonction de sa propriété Tag.
-        /// </summary>
-        /// <param name="control">Le contrôle à évaluer. La propriété Tag du contrôle doit contenir une valeur de type ChampEtat.</param>
-        /// <returns>true si la propriété Tag du contrôle est définie sur ChampEtat.Protege ; sinon, false.</returns>
-        private bool EstProtege(Control control)
-        {
-            return control.Tag is ChampEtat etat && etat == ChampEtat.Protege;
-        }
-
-        /// <summary>
-        /// Gère le clic sur le bouton d'annulation du formulaire, réinitialisant l'état de l'opération en cours et réactivant les contrôles d'action.
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        public void buttonFormulaireAnnuler_Click(object sender, EventArgs e)
-        {
-            Button btn = sender as Button;
-            if (btn == null || btn.Tag == null)
-                return;
-
-            var type = (TypeMedia)btn.Tag;
-            SetOperationEnCours(false, type);
-            operationEnCours = Operation.None;
-        }
-
-        public void buttonFormulaireValider_Click(object sender, EventArgs e)
-        {
-            Button btn = sender as Button;
-            if (btn == null || btn.Tag == null)
-                return;
-
-            // On ne sait pas encore si c'est une création ou une modification
-            bool? isNewDoc = null;
-
-            var type = (TypeMedia)btn.Tag;
-            var (unGenre, unPublic, unRayon, unId) = GetLibelles(type);
-            if (operationEnCours == Operation.Ajouter) {
-                // pour les ajouts, l'ID est généré par la base de données, on ne le récupère pas depuis le champ
-                unId = null;
-                isNewDoc = true;
-            } else if (operationEnCours == Operation.Modifier) {
-                isNewDoc = false;
-            }
-
             string message = "";
-
             if (unGenre == null) message += "Genre invalide.\n";
             if (unPublic == null) message += "Public invalide.\n";
             if (unRayon == null) message += "Rayon invalide.\n";
-
             if (message != "")
             {
                 MessageBox.Show(message, "Erreur de validation", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                return;
+                return false;
             }
-
-            DocumentDto dto = CreerDto(type, unId, unGenre, unPublic, unRayon);
-            if (isNewDoc.HasValue) {
-                bool succes = controller.SauvegarderDocument(type, dto, isNewDoc.Value);
-                AfficheMessageSucces(succes);
-            }
-
-            // fin du traitement de l'opération (ajout, modification, suppression)
-            // réactivation des boutons d'action et désactivation des boutons de validation
-            SetOperationEnCours(false, type);
-            operationEnCours = Operation.None; // réinitialiser l'opération en cours
+            return true;
         }
 
         /// <summary>
@@ -393,7 +87,6 @@ namespace MediaTekDocuments.view
         /// <param name="operation">Le nom ou la description de l'opération à afficher dans le message. La valeur par défaut est "Opération".</param>
         private void AfficheMessageSucces(bool succes, string operation = "Opération")
         {
-            // Bosse tes ternaires!
             string message = succes
                 ? $"{operation} effectuée avec succès."
                 : $"{operation} n’a pas pu être réalisée.";
@@ -403,153 +96,19 @@ namespace MediaTekDocuments.view
                             succes ? MessageBoxIcon.Information : MessageBoxIcon.Error);
         }
 
-        private void ViderChamps(TypeMedia type)
-        {
-            switch (type)
-            {
-                case TypeMedia.Livre:
-                    VideLivresInfos();
-                    break;
 
-                case TypeMedia.Dvd:
-                    VideDvdInfos();
-                    break;
-
-                case TypeMedia.Revue:
-                    VideRevuesInfos();
-                    break;
-
-                default:
-                    break;
-            }
-        }
-        private (Genre genre, Public publicObj, Rayon rayon, string unId) GetLibelles(TypeMedia type)
-        {
-            Genre unGenre = null;
-            Public unPublic = null;
-            Rayon unRayon = null;
-            string unId = null;
-
-            switch (type)
-            {
-                case TypeMedia.Livre:
-                    unGenre = bdgGenres.OfType<Genre>()
-                        .FirstOrDefault(g => g.Libelle.Equals(txbLivresGenre.Text));
-
-                    unPublic = bdgPublics.OfType<Public>()
-                        .FirstOrDefault(p => p.Libelle.Equals(txbLivresPublic.Text));
-
-                    unRayon = bdgRayons.OfType<Rayon>()
-                        .FirstOrDefault(r => r.Libelle.Equals(txbLivresRayon.Text));
-                    unId = txbLivresNumero.Text;
-                    break;
-
-                case TypeMedia.Dvd:
-                    unGenre = bdgGenres.OfType<Genre>()
-                        .FirstOrDefault(g => g.Libelle.Equals(txbDvdGenre.Text));
-
-                    unPublic = bdgPublics.OfType<Public>()
-                        .FirstOrDefault(p => p.Libelle.Equals(txbDvdPublic.Text));
-
-                    unRayon = bdgRayons.OfType<Rayon>()
-                        .FirstOrDefault(r => r.Libelle.Equals(txbDvdRayon.Text));
-                    unId = txbDvdNumero.Text;
-                    break;
-
-                case TypeMedia.Revue:
-                    unGenre = bdgGenres.OfType<Genre>()
-                        .FirstOrDefault(g => g.Libelle.Equals(txbRevuesGenre.Text));
-
-                    unPublic = bdgPublics.OfType<Public>()
-                        .FirstOrDefault(p => p.Libelle.Equals(txbRevuesPublic.Text));
-
-                    unRayon = bdgRayons.OfType<Rayon>()
-                        .FirstOrDefault(r => r.Libelle.Equals(txbRevuesRayon.Text));
-                    unId = txbRevuesNumero.Text;
-                    break;
-            }
-            if (operationEnCours == Operation.Ajouter)
-            {
-                unId = null; // pour les ajouts, l'ID est généré par la base de données, on ne le récupère pas depuis le champ
-            }
-
-            return (unGenre, unPublic, unRayon, unId);
-        }
-
-        private List<TextBox> GetTextBoxesAsListFromTags(TypeMedia type)
-        {
-            Control conteneur;
-
-            // déterminer le groupe de contrôle à partir du type de média
-            switch (type)
-            {
-                case TypeMedia.Livre:
-                    conteneur = grpLivresInfos;
-                    break;
-                case TypeMedia.Dvd:
-                    conteneur = grpDvdInfos;
-                    break;
-                case TypeMedia.Revue:
-                    conteneur = grpRevuesInfos;
-                    break;
-                default:
-                    return new List<TextBox>();
-            }
-
-            // récupérer les TextBox du groupe, en filtrant selon le tag "protege" si nécessaire
-            return conteneur.Controls
-                            .OfType<TextBox>()
-                            .ToList();
-        }
-        private string GetTitre(TypeMedia type)
-        {
-            switch (type)
-            {
-                case TypeMedia.Livre:
-                    return txbLivresTitre.Text;
-                case TypeMedia.Dvd:
-                    return txbDvdTitre.Text;
-                case TypeMedia.Revue:
-                    return txbRevuesTitre.Text;
-                default:
-                    return "";
-            }
-        }
-
-        private string GetImage(TypeMedia type)
-        {
-            switch (type)
-            {
-                case TypeMedia.Livre:
-                    return txbLivresImage.Text;
-                case TypeMedia.Dvd:
-                    return txbDvdImage.Text;
-                case TypeMedia.Revue:
-                    return txbRevuesImage.Text;
-                default:
-                    return "";
-            }
-        }
-
-        /// <summary>
-        /// Crée un nouvel objet DocumentDto en utilisant les informations en paramètre et les valeurs des champs de saisie correspondants au type de média spécifié.
-        /// </summary>
-        /// <param name="type">Le type de média à utiliser pour déterminer les champs spécifiques du document.</param>
-        /// <param name="id">L'identifiant unique du document à créer.</param>
-        /// <param name="genre">Le genre associé au document. Ne peut pas être null.</param>
-        /// <param name="lePublic">Le public cible du document. Ne peut pas être null.</param>
-        /// <param name="rayon">Le rayon auquel le document est associé. Ne peut pas être null.</param>
-        /// <returns>Un nouvel objet DocumentDto initialisé avec les valeurs correspondant aux paramètres fournis.</returns>
-        private DocumentDto CreerDto(TypeMedia type, string id, Genre genre, Public lePublic, Rayon rayon)
+        private bool CreerDocument(TypeMedia type, string id, string titre, string imageChemin, Genre genre, Public lePublic, Rayon rayon, bool isNewDoc)
         {
             int.TryParse(txbDvdDuree.Text, out int duree);
             int.TryParse(txbRevuesDateMiseADispo.Text, out int delai);
 
-            return new DocumentDto
+            var cmd = new CreerDocumentCommand
             {
+                Type = type,
+
                 Id = id,
-                Titre = GetTitre(type),
-                Image = GetImage(type),
+                Titre = titre,
+                Image = imageChemin,
 
                 IdGenre = genre.Id,
                 IdPublic = lePublic.Id,
@@ -566,46 +125,9 @@ namespace MediaTekDocuments.view
                 Periodicite = txbRevuesPeriodicite.Text,
                 DelaiMiseADispo = delai
             };
-        }
 
-        private void AfficherMedia(Document media)
-        {
-            if (media == null)
-            {
-                MessageBox.Show("Aucun média à afficher.", "Information", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                return;
-            }
-
-            string info = $"Type : {media.GetType().Name}\n" +
-                          $"ID : {media.Id}\n" +
-                          $"Titre : {media.Titre}\n" +
-                          $"Image : {media.Image}\n" +
-                          $"Genre : {media.Genre}\n" +
-                          $"Public : {media.Public}\n" +
-                          $"Rayon : {media.Rayon}\n";
-
-            if (media is Livre livre)
-            {
-                info += "\n--- Informations Livre ---\n" +
-                        $"ISBN : {livre.Isbn}\n" +
-                        $"Auteur : {livre.Auteur}\n" +
-                        $"Collection : {livre.Collection}\n";
-            }
-            else if (media is Dvd dvd)
-            {
-                info += "\n--- Informations DVD ---\n" +
-                        $"Durée : {dvd.Duree} minutes\n" +
-                        $"Réalisateur : {dvd.Realisateur}\n" +
-                        $"Synopsis : {dvd.Synopsis}\n";
-            }
-            else if (media is Revue revue)
-            {
-                info += "\n--- Informations Revue ---\n" +
-                        $"Périodicité : {revue.Periodicite}\n" +
-                        $"Délai mise à dispo : {revue.DelaiMiseADispo} jours\n";
-            }
-
-            MessageBox.Show(info, "Vérification du média", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            bool succes = controller.SauvegarderDocument(cmd, isNewDoc);
+            return succes;
         }
 
         #endregion
@@ -627,6 +149,139 @@ namespace MediaTekDocuments.view
             RemplirComboCategorie(controller.GetAllPublics(), bdgPublics, cbxLivresPublics);
             RemplirComboCategorie(controller.GetAllRayons(), bdgRayons, cbxLivresRayons);
             RemplirLivresListeComplete();
+        }
+
+        private void SetModeLivre(Operation operation)
+        {
+            bool edition = operation == Operation.Ajouter || operation == Operation.Modifier;
+
+            dgvLivresListe.Enabled = !edition;
+
+            // Champs éditables
+            txbLivresTitre.ReadOnly = !edition;
+            txbLivresAuteur.ReadOnly = !edition;
+            txbLivresCollection.ReadOnly = !edition;
+            txbLivresGenre.ReadOnly = !edition;
+            txbLivresPublic.ReadOnly = !edition;
+            txbLivresRayon.ReadOnly = !edition;
+            txbLivresImage.ReadOnly = !edition;
+
+            // Champ protégé
+            txbLivresNumero.ReadOnly = true;
+
+            // Boutons
+            buttonLivreAjouter.Enabled = !edition;
+            buttonLivreModifier.Enabled = !edition;
+            buttonLivreSupprimer.Enabled = !edition;
+
+            buttonValiderLivre.Enabled = edition;
+            buttonAnnulerLivre.Enabled = edition;
+
+            if (edition)
+            {
+                txbLivresTitre.Focus();
+            }
+        }
+
+        private (Genre genre, Public publicObj, Rayon rayon) GetLivreSelections()
+        {
+            var genre = bdgGenres.OfType<Genre>()
+                .FirstOrDefault(g => g.Libelle == txbLivresGenre.Text);
+
+            var publicObj = bdgPublics.OfType<Public>()
+                .FirstOrDefault(p => p.Libelle == txbLivresPublic.Text);
+
+            var rayon = bdgRayons.OfType<Rayon>()
+                .FirstOrDefault(r => r.Libelle == txbLivresRayon.Text);
+
+            return (genre, publicObj, rayon);
+        }
+
+        private void buttonLivreAjouter_Click(object sender, EventArgs e)
+        {
+            operationEnCours = Operation.Ajouter;
+
+            VideLivresInfos();
+            SetModeLivre(operationEnCours);
+        }
+
+        private void buttonLivreModifier_Click(object sender, EventArgs e)
+        {
+            if (string.IsNullOrEmpty(txbLivresNumero.Text))
+            {
+                MessageBox.Show("Veuillez sélectionner un livre à modifier.", "Information", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                return;
+            }
+
+            operationEnCours = Operation.Modifier;
+            SetModeLivre(operationEnCours);
+        }
+
+        private void buttonLivreSupprimer_Click(object sender, EventArgs e)
+        {
+            if (string.IsNullOrEmpty(txbLivresNumero.Text)) return;
+
+            var livre = lesLivres.Find(l => l.Id == txbLivresNumero.Text);
+            if (livre == null) return;
+
+            var result = MessageBox.Show(
+                $"Supprimer '{livre.Titre}' ?",
+                "Confirmation",
+                MessageBoxButtons.YesNo,
+                MessageBoxIcon.Warning);
+
+            if (result == DialogResult.Yes)
+            {
+                bool success = controller.SupprimerDocument(TypeMedia.Livre, livre.Id);
+                AfficheMessageSucces(success, "Suppression");
+
+                TabLivres_Enter(null, null);
+            }
+
+            operationEnCours = Operation.None;
+            SetModeLivre(Operation.None);
+        }
+
+        private void buttonValiderLivre_Click(object sender, EventArgs e)
+        {
+            if (operationEnCours != Operation.Ajouter && operationEnCours != Operation.Modifier)
+            {
+                MessageBox.Show("Aucune opération en cours.", "Erreur", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            var (genre, publicObj, rayon) = GetLivreSelections();
+
+            if (!AreChampsObligatoiresValides(genre, publicObj, rayon))
+                return;
+
+            bool isNew = operationEnCours == Operation.Ajouter;
+
+            bool success = CreerDocument(
+                TypeMedia.Livre,
+                isNew ? null : txbLivresNumero.Text,
+                txbLivresTitre.Text,
+                txbLivresImage.Text,
+                genre,
+                publicObj,
+                rayon,
+                isNew
+            );
+
+            AfficheMessageSucces(success);
+
+            operationEnCours = Operation.None;
+            SetModeLivre(Operation.None);
+
+            TabLivres_Enter(null, null);
+        }
+
+        private void buttonAnnulerLivre_Click(object sender, EventArgs e)
+        {
+            operationEnCours = Operation.None;
+
+            SetModeLivre(Operation.None);
+            TabLivres_Enter(null, null);
         }
 
         /// <summary>
@@ -944,6 +599,138 @@ namespace MediaTekDocuments.view
             RemplirDvdListeComplete();
         }
 
+        private void SetModeDvd(Operation operation)
+        {
+            bool edition = operation == Operation.Ajouter || operation == Operation.Modifier;
+
+            dgvDvdListe.Enabled = !edition;
+
+            // Champs éditables
+            txbDvdTitre.ReadOnly = !edition;
+            txbDvdRealisateur.ReadOnly = !edition;
+            txbDvdSynopsis.ReadOnly = !edition;
+            txbDvdGenre.ReadOnly = !edition;
+            txbDvdPublic.ReadOnly = !edition;
+            txbDvdRayon.ReadOnly = !edition;
+            txbDvdImage.ReadOnly = !edition;
+            txbDvdDuree.ReadOnly = !edition;
+
+            // Champ protégé
+            txbDvdNumero.ReadOnly = true;
+
+            // Boutons
+            buttonDvdAjouter.Enabled = !edition;
+            buttonDvdModifier.Enabled = !edition;
+            buttonDvdSupprimer.Enabled = !edition;
+
+            buttonValiderDvd.Enabled = edition;
+            buttonAnnulerDvd.Enabled = edition;
+
+            if (edition)
+                txbDvdTitre.Focus();
+        }
+
+        private (Genre genre, Public publicObj, Rayon rayon) GetDvdSelections()
+        {
+            var genre = bdgGenres.OfType<Genre>()
+                .FirstOrDefault(g => g.Libelle == txbDvdGenre.Text);
+
+            var publicObj = bdgPublics.OfType<Public>()
+                .FirstOrDefault(p => p.Libelle == txbDvdPublic.Text);
+
+            var rayon = bdgRayons.OfType<Rayon>()
+                .FirstOrDefault(r => r.Libelle == txbDvdRayon.Text);
+
+            return (genre, publicObj, rayon);
+        }
+        private void buttonDvdAjouter_Click(object sender, EventArgs e)
+        {
+            operationEnCours = Operation.Ajouter;
+
+            VideDvdInfos();
+            SetModeDvd(operationEnCours);
+        }
+
+        private void buttonDvdModifier_Click(object sender, EventArgs e)
+        {
+            if (string.IsNullOrEmpty(txbDvdNumero.Text))
+            {
+                MessageBox.Show("Veuillez sélectionner un DVD à modifier.", "Information", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                return;
+            }
+
+            operationEnCours = Operation.Modifier;
+            SetModeDvd(operationEnCours);
+        }
+
+        private void buttonDvdSupprimer_Click(object sender, EventArgs e)
+        {
+            if (string.IsNullOrEmpty(txbDvdNumero.Text)) return;
+
+            var dvd = lesDvd.Find(d => d.Id == txbDvdNumero.Text);
+            if (dvd == null) return;
+
+            var result = MessageBox.Show(
+                $"Supprimer '{dvd.Titre}' ?",
+                "Confirmation",
+                MessageBoxButtons.YesNo,
+                MessageBoxIcon.Warning);
+
+            if (result == DialogResult.Yes)
+            {
+                bool success = controller.SupprimerDocument(TypeMedia.Dvd, dvd.Id);
+                AfficheMessageSucces(success, "Suppression");
+
+                operationEnCours = Operation.None;
+                SetModeDvd(Operation.None);
+
+                tabDvd_Enter(null, null);
+            }
+        }
+
+        private void buttonValiderDvd_Click(object sender, EventArgs e)
+        {
+            if (operationEnCours != Operation.Ajouter && operationEnCours != Operation.Modifier)
+            {
+                MessageBox.Show("Aucune opération en cours.", "Erreur", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            var (genre, publicObj, rayon) = GetDvdSelections();
+
+            if (!AreChampsObligatoiresValides(genre, publicObj, rayon))
+                return;
+
+            bool isNew = operationEnCours == Operation.Ajouter;
+
+            bool success = CreerDocument(
+                TypeMedia.Dvd,
+                isNew ? null : txbDvdNumero.Text,
+                txbDvdTitre.Text,
+                txbDvdImage.Text,
+                genre,
+                publicObj,
+                rayon,
+                isNew
+            );
+
+            AfficheMessageSucces(success);
+
+            operationEnCours = Operation.None;
+            SetModeDvd(Operation.None);
+
+            tabDvd_Enter(null, null);
+        }
+
+        private void buttonAnnulerDvd_Click(object sender, EventArgs e)
+        {
+            operationEnCours = Operation.None;
+
+            SetModeDvd(Operation.None);
+            tabDvd_Enter(null, null);
+        }
+
+
         /// <summary>
         /// Remplit le dategrid avec la liste reçue en paramètre
         /// </summary>
@@ -1257,6 +1044,137 @@ namespace MediaTekDocuments.view
             RemplirComboCategorie(controller.GetAllPublics(), bdgPublics, cbxRevuesPublics);
             RemplirComboCategorie(controller.GetAllRayons(), bdgRayons, cbxRevuesRayons);
             RemplirRevuesListeComplete();
+        }
+
+        private void SetModeRevue(Operation operation)
+        {
+            bool edition = operation == Operation.Ajouter || operation == Operation.Modifier;
+
+            dgvRevuesListe.Enabled = !edition;
+
+            // Champs éditables
+            txbRevuesTitre.ReadOnly = !edition;
+            txbRevuesPeriodicite.ReadOnly = !edition;
+            txbRevuesDateMiseADispo.ReadOnly = !edition;
+            txbRevuesGenre.ReadOnly = !edition;
+            txbRevuesPublic.ReadOnly = !edition;
+            txbRevuesRayon.ReadOnly = !edition;
+            txbRevuesImage.ReadOnly = !edition;
+
+            // ID protégé
+            txbRevuesNumero.ReadOnly = true;
+
+            // Boutons
+            buttonRevueAjouter.Enabled = !edition;
+            buttonRevueModifier.Enabled = !edition;
+            buttonRevueSupprimer.Enabled = !edition;
+
+            buttonValiderRevue.Enabled = edition;
+            buttonAnnulerRevue.Enabled = edition;
+ 
+            if (edition)
+                txbRevuesTitre.Focus();
+        }
+
+        private (Genre genre, Public publicObj, Rayon rayon) GetRevueSelections()
+        {
+            var genre = bdgGenres.OfType<Genre>()
+                .FirstOrDefault(g => g.Libelle == txbRevuesGenre.Text);
+
+            var publicObj = bdgPublics.OfType<Public>()
+                .FirstOrDefault(p => p.Libelle == txbRevuesPublic.Text);
+
+            var rayon = bdgRayons.OfType<Rayon>()
+                .FirstOrDefault(r => r.Libelle == txbRevuesRayon.Text);
+
+            return (genre, publicObj, rayon);
+        }
+
+        private void buttonRevueAjouter_Click(object sender, EventArgs e)
+        {
+            operationEnCours = Operation.Ajouter;
+
+            VideRevuesInfos();
+            SetModeRevue(operationEnCours);
+        }
+
+        private void buttonRevueModifier_Click(object sender, EventArgs e)
+        {
+            if (string.IsNullOrEmpty(txbRevuesNumero.Text))
+            {
+                MessageBox.Show("Veuillez sélectionner une revue à modifier.", "Information", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                return;
+            }
+
+            operationEnCours = Operation.Modifier;
+            SetModeRevue(operationEnCours);
+        }
+
+        private void buttonRevueSupprimer_Click(object sender, EventArgs e)
+        {
+            if (string.IsNullOrEmpty(txbRevuesNumero.Text)) return;
+
+            var revue = lesRevues.Find(r => r.Id == txbRevuesNumero.Text);
+            if (revue == null) return;
+
+            var result = MessageBox.Show(
+                $"Supprimer '{revue.Titre}' ?",
+                "Confirmation",
+                MessageBoxButtons.YesNo,
+                MessageBoxIcon.Warning);
+
+            if (result == DialogResult.Yes)
+            {
+                bool success = controller.SupprimerDocument(TypeMedia.Revue, revue.Id);
+                AfficheMessageSucces(success, "Suppression");
+
+                operationEnCours = Operation.None;
+                SetModeRevue(Operation.None);
+
+                tabRevues_Enter(null, null);
+            }
+        }
+
+        private void buttonValiderRevue_Click(object sender, EventArgs e)
+        {
+            if (operationEnCours != Operation.Ajouter && operationEnCours != Operation.Modifier)
+            {
+                MessageBox.Show("Aucune opération en cours.", "Erreur", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            var (genre, publicObj, rayon) = GetRevueSelections();
+
+            if (!AreChampsObligatoiresValides(genre, publicObj, rayon))
+                return;
+
+            bool isNew = operationEnCours == Operation.Ajouter;
+
+            bool success = CreerDocument(
+                TypeMedia.Revue,
+                isNew ? null : txbRevuesNumero.Text,
+                txbRevuesTitre.Text,
+                txbRevuesImage.Text,
+                genre,
+                publicObj,
+                rayon,
+                isNew
+            );
+
+            AfficheMessageSucces(success);
+
+            operationEnCours = Operation.None;
+            SetModeRevue(Operation.None);
+
+            tabRevues_Enter(null, null);
+        }
+
+        private void buttonAnnulerRevue_Click(object sender, EventArgs e)
+        {
+            operationEnCours = Operation.None;
+
+            SetModeRevue(Operation.None);
+            tabRevues_Enter(null, null);
         }
 
         /// <summary>

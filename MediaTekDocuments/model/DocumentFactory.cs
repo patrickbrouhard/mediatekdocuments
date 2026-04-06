@@ -1,4 +1,4 @@
-﻿using MediaTekDocuments.Dtos;
+﻿using MediaTekDocuments.commands;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,46 +16,46 @@ namespace MediaTekDocuments.model
     /// le Factory Pattern : https://www.youtube.com/watch?v=BJatgOiiht4&t=1199s</remarks>
     public static class DocumentFactory
     {
-        public static Document Create(TypeMedia type, DocumentDto dto)
+        public static Document Creer(CreerDocumentCommand cmd)
         {
-            switch (type)
+            switch (cmd.Type)
             {
                 case TypeMedia.Livre:
                     return new Livre(
-                        dto.Id,
-                        dto.Titre,
-                        dto.Image,
-                        dto.Isbn,
-                        dto.Auteur,
-                        dto.Collection,
-                        dto.IdGenre, "",
-                        dto.IdPublic, "",
-                        dto.IdRayon, ""
+                        cmd.Id,
+                        cmd.Titre,
+                        cmd.Image,
+                        cmd.Isbn,
+                        cmd.Auteur,
+                        cmd.Collection,
+                        cmd.IdGenre, "",
+                        cmd.IdPublic, "",
+                        cmd.IdRayon, ""
                     );
 
                 case TypeMedia.Dvd:
                     return new Dvd(
-                        dto.Id,
-                        dto.Titre,
-                        dto.Image,
-                        dto.Duree ?? 0,
-                        dto.Realisateur,
-                        dto.Synopsis,
-                        dto.IdGenre, "",
-                        dto.IdPublic, "",
-                        dto.IdRayon, ""
+                        cmd.Id,
+                        cmd.Titre,
+                        cmd.Image,
+                        cmd.Duree ?? 0,
+                        cmd.Realisateur,
+                        cmd.Synopsis,
+                        cmd.IdGenre, "",
+                        cmd.IdPublic, "",
+                        cmd.IdRayon, ""
                     );
 
                 case TypeMedia.Revue:
                     return new Revue(
-                        dto.Id,
-                        dto.Titre,
-                        dto.Image,
-                        dto.IdGenre, "",
-                        dto.IdPublic, "",
-                        dto.IdRayon, "",
-                        dto.Periodicite,
-                        dto.DelaiMiseADispo ?? 0
+                        cmd.Id,
+                        cmd.Titre,
+                        cmd.Image,
+                        cmd.IdGenre, "",
+                        cmd.IdPublic, "",
+                        cmd.IdRayon, "",
+                        cmd.Periodicite,
+                        cmd.DelaiMiseADispo ?? 0
                     );
 
                 default:

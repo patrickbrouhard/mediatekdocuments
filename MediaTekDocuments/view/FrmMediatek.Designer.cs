@@ -75,6 +75,8 @@ namespace MediaTekDocuments.view
             this.txbLivresTitreRecherche = new System.Windows.Forms.TextBox();
             this.tabDvd = new System.Windows.Forms.TabPage();
             this.grpDvdInfos = new System.Windows.Forms.GroupBox();
+            this.buttonAnnulerDvd = new System.Windows.Forms.Button();
+            this.buttonValiderDvd = new System.Windows.Forms.Button();
             this.label58 = new System.Windows.Forms.Label();
             this.txbDvdDuree = new System.Windows.Forms.TextBox();
             this.txbDvdImage = new System.Windows.Forms.TextBox();
@@ -116,6 +118,8 @@ namespace MediaTekDocuments.view
             this.txbDvdTitreRecherche = new System.Windows.Forms.TextBox();
             this.tabRevues = new System.Windows.Forms.TabPage();
             this.grpRevuesInfos = new System.Windows.Forms.GroupBox();
+            this.buttonAnnulerRevue = new System.Windows.Forms.Button();
+            this.buttonValiderRevue = new System.Windows.Forms.Button();
             this.label57 = new System.Windows.Forms.Label();
             this.txbRevuesImage = new System.Windows.Forms.TextBox();
             this.txbRevuesRayon = new System.Windows.Forms.TextBox();
@@ -189,10 +193,6 @@ namespace MediaTekDocuments.view
             this.label53 = new System.Windows.Forms.Label();
             this.label54 = new System.Windows.Forms.Label();
             this.btnReceptionRechercher = new System.Windows.Forms.Button();
-            this.buttonValiderDvd = new System.Windows.Forms.Button();
-            this.buttonAnnulerDvd = new System.Windows.Forms.Button();
-            this.buttonValiderRevue = new System.Windows.Forms.Button();
-            this.buttonAnnulerRevue = new System.Windows.Forms.Button();
             this.tabOngletsApplication.SuspendLayout();
             this.tabLivres.SuspendLayout();
             this.grpLivresInfos.SuspendLayout();
@@ -288,6 +288,7 @@ namespace MediaTekDocuments.view
             this.buttonAnnulerLivre.TabIndex = 35;
             this.buttonAnnulerLivre.Text = "Annuler";
             this.buttonAnnulerLivre.UseVisualStyleBackColor = true;
+            this.buttonAnnulerLivre.Click += new System.EventHandler(this.buttonAnnulerLivre_Click);
             // 
             // buttonValiderLivre
             // 
@@ -298,6 +299,7 @@ namespace MediaTekDocuments.view
             this.buttonValiderLivre.TabIndex = 34;
             this.buttonValiderLivre.Text = "Valider";
             this.buttonValiderLivre.UseVisualStyleBackColor = true;
+            this.buttonValiderLivre.Click += new System.EventHandler(this.buttonValiderLivre_Click);
             // 
             // label59
             // 
@@ -541,6 +543,7 @@ namespace MediaTekDocuments.view
             this.buttonLivreSupprimer.Tag = "";
             this.buttonLivreSupprimer.Text = "Supprimer";
             this.buttonLivreSupprimer.UseVisualStyleBackColor = true;
+            this.buttonLivreSupprimer.Click += new System.EventHandler(this.buttonLivreSupprimer_Click);
             // 
             // buttonLivreModifier
             // 
@@ -552,6 +555,7 @@ namespace MediaTekDocuments.view
             this.buttonLivreModifier.Tag = "";
             this.buttonLivreModifier.Text = "Modifier";
             this.buttonLivreModifier.UseVisualStyleBackColor = true;
+            this.buttonLivreModifier.Click += new System.EventHandler(this.buttonLivreModifier_Click);
             // 
             // buttonLivreAjouter
             // 
@@ -563,6 +567,7 @@ namespace MediaTekDocuments.view
             this.buttonLivreAjouter.Tag = "";
             this.buttonLivreAjouter.Text = "Ajouter";
             this.buttonLivreAjouter.UseVisualStyleBackColor = true;
+            this.buttonLivreAjouter.Click += new System.EventHandler(this.buttonLivreAjouter_Click);
             // 
             // btnLivresAnnulRayons
             // 
@@ -779,6 +784,28 @@ namespace MediaTekDocuments.view
             this.grpDvdInfos.TabIndex = 21;
             this.grpDvdInfos.TabStop = false;
             this.grpDvdInfos.Text = "Informations détaillées";
+            // 
+            // buttonAnnulerDvd
+            // 
+            this.buttonAnnulerDvd.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold);
+            this.buttonAnnulerDvd.Location = new System.Drawing.Point(665, 330);
+            this.buttonAnnulerDvd.Name = "buttonAnnulerDvd";
+            this.buttonAnnulerDvd.Size = new System.Drawing.Size(144, 34);
+            this.buttonAnnulerDvd.TabIndex = 35;
+            this.buttonAnnulerDvd.Text = "Annuler";
+            this.buttonAnnulerDvd.UseVisualStyleBackColor = true;
+            this.buttonAnnulerDvd.Click += new System.EventHandler(this.buttonAnnulerDvd_Click);
+            // 
+            // buttonValiderDvd
+            // 
+            this.buttonValiderDvd.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold);
+            this.buttonValiderDvd.Location = new System.Drawing.Point(665, 286);
+            this.buttonValiderDvd.Name = "buttonValiderDvd";
+            this.buttonValiderDvd.Size = new System.Drawing.Size(144, 34);
+            this.buttonValiderDvd.TabIndex = 34;
+            this.buttonValiderDvd.Text = "Valider";
+            this.buttonValiderDvd.UseVisualStyleBackColor = true;
+            this.buttonValiderDvd.Click += new System.EventHandler(this.buttonValiderDvd_Click);
             // 
             // label58
             // 
@@ -1025,6 +1052,7 @@ namespace MediaTekDocuments.view
             this.buttonDvdSupprimer.Tag = "";
             this.buttonDvdSupprimer.Text = "Supprimer";
             this.buttonDvdSupprimer.UseVisualStyleBackColor = true;
+            this.buttonDvdSupprimer.Click += new System.EventHandler(this.buttonDvdSupprimer_Click);
             // 
             // buttonDvdModifier
             // 
@@ -1036,6 +1064,7 @@ namespace MediaTekDocuments.view
             this.buttonDvdModifier.Tag = "";
             this.buttonDvdModifier.Text = "Modifier";
             this.buttonDvdModifier.UseVisualStyleBackColor = true;
+            this.buttonDvdModifier.Click += new System.EventHandler(this.buttonDvdModifier_Click);
             // 
             // buttonDvdAjouter
             // 
@@ -1047,6 +1076,7 @@ namespace MediaTekDocuments.view
             this.buttonDvdAjouter.Tag = "";
             this.buttonDvdAjouter.Text = "Ajouter";
             this.buttonDvdAjouter.UseVisualStyleBackColor = true;
+            this.buttonDvdAjouter.Click += new System.EventHandler(this.buttonDvdAjouter_Click);
             // 
             // btnDvdAnnulRayons
             // 
@@ -1259,6 +1289,28 @@ namespace MediaTekDocuments.view
             this.grpRevuesInfos.TabIndex = 20;
             this.grpRevuesInfos.TabStop = false;
             this.grpRevuesInfos.Text = "Informations détaillées";
+            // 
+            // buttonAnnulerRevue
+            // 
+            this.buttonAnnulerRevue.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold);
+            this.buttonAnnulerRevue.Location = new System.Drawing.Point(665, 330);
+            this.buttonAnnulerRevue.Name = "buttonAnnulerRevue";
+            this.buttonAnnulerRevue.Size = new System.Drawing.Size(144, 34);
+            this.buttonAnnulerRevue.TabIndex = 34;
+            this.buttonAnnulerRevue.Text = "Annuler";
+            this.buttonAnnulerRevue.UseVisualStyleBackColor = true;
+            this.buttonAnnulerRevue.Click += new System.EventHandler(this.buttonAnnulerRevue_Click);
+            // 
+            // buttonValiderRevue
+            // 
+            this.buttonValiderRevue.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold);
+            this.buttonValiderRevue.Location = new System.Drawing.Point(665, 286);
+            this.buttonValiderRevue.Name = "buttonValiderRevue";
+            this.buttonValiderRevue.Size = new System.Drawing.Size(144, 34);
+            this.buttonValiderRevue.TabIndex = 33;
+            this.buttonValiderRevue.Text = "Valider";
+            this.buttonValiderRevue.UseVisualStyleBackColor = true;
+            this.buttonValiderRevue.Click += new System.EventHandler(this.buttonValiderRevue_Click);
             // 
             // label57
             // 
@@ -1482,6 +1534,7 @@ namespace MediaTekDocuments.view
             this.buttonRevueSupprimer.Tag = "";
             this.buttonRevueSupprimer.Text = "Supprimer";
             this.buttonRevueSupprimer.UseVisualStyleBackColor = true;
+            this.buttonRevueSupprimer.Click += new System.EventHandler(this.buttonRevueSupprimer_Click);
             // 
             // buttonRevueModifier
             // 
@@ -1493,6 +1546,7 @@ namespace MediaTekDocuments.view
             this.buttonRevueModifier.Tag = "";
             this.buttonRevueModifier.Text = "Modifier";
             this.buttonRevueModifier.UseVisualStyleBackColor = true;
+            this.buttonRevueModifier.Click += new System.EventHandler(this.buttonRevueModifier_Click);
             // 
             // buttonRevueAjouter
             // 
@@ -1504,6 +1558,7 @@ namespace MediaTekDocuments.view
             this.buttonRevueAjouter.Tag = "";
             this.buttonRevueAjouter.Text = "Ajouter";
             this.buttonRevueAjouter.UseVisualStyleBackColor = true;
+            this.buttonRevueAjouter.Click += new System.EventHandler(this.buttonRevueAjouter_Click);
             // 
             // btnRevuesAnnulRayons
             // 
@@ -2091,46 +2146,6 @@ namespace MediaTekDocuments.view
             this.btnReceptionRechercher.Text = "Rechercher";
             this.btnReceptionRechercher.UseVisualStyleBackColor = true;
             this.btnReceptionRechercher.Click += new System.EventHandler(this.btnReceptionRechercher_Click);
-            // 
-            // buttonValiderDvd
-            // 
-            this.buttonValiderDvd.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold);
-            this.buttonValiderDvd.Location = new System.Drawing.Point(665, 286);
-            this.buttonValiderDvd.Name = "buttonValiderDvd";
-            this.buttonValiderDvd.Size = new System.Drawing.Size(144, 34);
-            this.buttonValiderDvd.TabIndex = 34;
-            this.buttonValiderDvd.Text = "Valider";
-            this.buttonValiderDvd.UseVisualStyleBackColor = true;
-            // 
-            // buttonAnnulerDvd
-            // 
-            this.buttonAnnulerDvd.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold);
-            this.buttonAnnulerDvd.Location = new System.Drawing.Point(665, 330);
-            this.buttonAnnulerDvd.Name = "buttonAnnulerDvd";
-            this.buttonAnnulerDvd.Size = new System.Drawing.Size(144, 34);
-            this.buttonAnnulerDvd.TabIndex = 35;
-            this.buttonAnnulerDvd.Text = "Annuler";
-            this.buttonAnnulerDvd.UseVisualStyleBackColor = true;
-            // 
-            // buttonValiderRevue
-            // 
-            this.buttonValiderRevue.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold);
-            this.buttonValiderRevue.Location = new System.Drawing.Point(665, 286);
-            this.buttonValiderRevue.Name = "buttonValiderRevue";
-            this.buttonValiderRevue.Size = new System.Drawing.Size(144, 34);
-            this.buttonValiderRevue.TabIndex = 33;
-            this.buttonValiderRevue.Text = "Valider";
-            this.buttonValiderRevue.UseVisualStyleBackColor = true;
-            // 
-            // buttonAnnulerRevue
-            // 
-            this.buttonAnnulerRevue.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold);
-            this.buttonAnnulerRevue.Location = new System.Drawing.Point(665, 330);
-            this.buttonAnnulerRevue.Name = "buttonAnnulerRevue";
-            this.buttonAnnulerRevue.Size = new System.Drawing.Size(144, 34);
-            this.buttonAnnulerRevue.TabIndex = 34;
-            this.buttonAnnulerRevue.Text = "Annuler";
-            this.buttonAnnulerRevue.UseVisualStyleBackColor = true;
             // 
             // FrmMediatek
             // 
