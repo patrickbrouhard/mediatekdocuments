@@ -1,4 +1,5 @@
-﻿using MediaTekDocuments.manager;
+﻿using MediaTekDocuments.dto;
+using MediaTekDocuments.manager;
 using MediaTekDocuments.model;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
@@ -368,5 +369,44 @@ namespace MediaTekDocuments.dal
             }
         }
 
+        #region commandes
+
+        public List<CommandeDocument> GetAllCommandesDocuments(TypeMedia type)
+        {
+            string endpoint;
+            switch (type)
+            {
+                case TypeMedia.Livre:
+                    endpoint = "commandedocumentlivre";
+                    break;
+                case TypeMedia.Dvd:
+                    endpoint = "commandedocumentdvd";
+                    break;
+                default:
+                    throw new ArgumentException("TypeMedia invalide");
+            }
+
+            var dtos = TraitementRecup<CommandeDocumentDto>(GET, endpoint, null);
+
+            Debug.WriteLine(dtos[0].Public);
+
+            return dtos
+                .Select(dto => CommandeFactory.Creer(dto))
+                .ToList();
+        }
+
+        /// <summary>
+        /// Retourne tous les états de suivi
+        /// </summary>
+        /// <returns>Liste d'objets Suivi</returns>
+        public List<Suivi> GetAllSuivis()
+        {
+            List<Suivi> lesSuivis = TraitementRecup<Suivi>(GET, "suivi", null);
+            return lesSuivis;
+        }
+
+
+
+        #endregion
     }
 }

@@ -1,5 +1,6 @@
 ﻿using MediaTekDocuments.commands;
 using MediaTekDocuments.controller;
+using MediaTekDocuments.dal;
 using MediaTekDocuments.model;
 using System;
 using System.Collections.Generic;
@@ -1719,6 +1720,196 @@ namespace MediaTekDocuments.view
                 pcbReceptionExemplaireRevueImage.Image = null;
             }
         }
+        #endregion
+
+        #region OngletCommandesLivres
+
+        private readonly BindingSource bdgCommandeLivresListe = new BindingSource();
+        private List<CommandeDocument> lesCommandesLivres = new List<CommandeDocument>();
+
+        private void tabCommandeLivre_Enter(object sender, EventArgs e)
+        {
+            lesCommandesLivres = controller.GetAllCommandesDocuments(TypeMedia.Livre);
+            RemplirCommandesLivreListe(lesCommandesLivres);
+            ChargerSuivis();
+        }
+
+        private void ChargerSuivis()
+        {
+            var lesSuivis = controller.GetAllSuivis();
+
+            comboBoxCommandeLivreEtat.DataSource = lesSuivis;
+            comboBoxCommandeLivreEtat.DisplayMember = "LibelleEtat";
+            comboBoxCommandeLivreEtat.ValueMember = "IdSuivi";
+        }
+
+        private void RemplirCommandesLivreListe(List<CommandeDocument> commandesDocument)
+        {
+            bdgCommandeLivresListe.DataSource = commandesDocument;
+
+            dataGridViewCommandeLivresListe.AutoGenerateColumns = false;
+            dataGridViewCommandeLivresListe.DataSource = bdgCommandeLivresListe;
+            dataGridViewCommandeLivresListe.Columns.Clear();
+
+            dataGridViewCommandeLivresListe.Columns.Add(new DataGridViewTextBoxColumn
+            {
+                HeaderText = "Id",
+                DataPropertyName = "Id"
+            });
+
+            dataGridViewCommandeLivresListe.Columns.Add(new DataGridViewTextBoxColumn
+            {
+                HeaderText = "Id Document",
+                DataPropertyName = "IdDocument"
+            });
+
+            dataGridViewCommandeLivresListe.Columns.Add(new DataGridViewTextBoxColumn
+            {
+                HeaderText = "Exemplaires",
+                DataPropertyName = "NbExemplaire"
+            });
+
+            dataGridViewCommandeLivresListe.Columns.Add(new DataGridViewTextBoxColumn
+            {
+                HeaderText = "Etat",
+                DataPropertyName = "LibelleSuivi"
+            });
+
+            dataGridViewCommandeLivresListe.Columns.Add(new DataGridViewTextBoxColumn
+            {
+                HeaderText = "Date",
+                DataPropertyName = "DateCommande"
+            });
+
+            dataGridViewCommandeLivresListe.Columns.Add(new DataGridViewTextBoxColumn
+            {
+                HeaderText = "Montant",
+                DataPropertyName = "Montant"
+            });
+
+            dataGridViewCommandeLivresListe.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.AllCells;
+        }
+
+        private void RemplirDetailsLivre(CommandeDocument commande)
+        {
+            if (commande.Document is Livre livre)
+            {
+                textBoxLivreNumero.Text = livre.Id;
+                textBoxLivreIsbn.Text = livre.Isbn;
+                textBoxLivreTitre.Text = livre.Titre;
+                textBoxLivreAuteur.Text = livre.Auteur;
+                textBoxLivreCollection.Text = livre.Collection;
+                textBoxLivreGenre.Text = livre.Genre;
+                textBoxLivrePublic.Text = livre.Public;
+                textBoxLivreRayon.Text = livre.Rayon;
+                textBoxLivreImage.Text = livre.Image;
+            }
+        }
+
+        private void RemplirDetailsLivreDepuisDocument(Document document)
+        {
+            if (document is Livre livre)
+            {
+                textBoxLivreNumero.Text = livre.Id;
+                textBoxLivreIsbn.Text = livre.Isbn;
+                textBoxLivreTitre.Text = livre.Titre;
+                textBoxLivreAuteur.Text = livre.Auteur;
+                textBoxLivreCollection.Text = livre.Collection;
+                textBoxLivreGenre.Text = livre.Genre;
+                textBoxLivrePublic.Text = livre.Public;
+                textBoxLivreRayon.Text = livre.Rayon;
+                textBoxLivreImage.Text = livre.Image;
+            }
+        }
+
+
+        private void ViderDetailsLivre()
+        {
+            textBoxLivreNumero.Text = "";
+            textBoxLivreIsbn.Text = "";
+            textBoxLivreTitre.Text = "";
+            textBoxLivreAuteur.Text = "";
+            textBoxLivreCollection.Text = "";
+            textBoxLivreGenre.Text = "";
+            textBoxLivrePublic.Text = "";
+            textBoxLivreRayon.Text = "";
+            textBoxLivreImage.Text = "";
+        }
+
+        private void RemplirCommande(CommandeDocument commande)
+        {
+            textBoxLCommandeLivreNumero.Text = commande.Id;
+            dateTimePickerCommandeLivreDate.Value = commande.DateCommande;
+            textBoxCommandeLivreMontant.Text = commande.Montant.ToString("0.00");
+
+            textBoxLivreNumeroDansCommande.Text = commande.Document.Id;
+            textBoxCommandeLivreNbExemplaires.Text = commande.NbExemplaire.ToString();
+
+            comboBoxCommandeLivreEtat.SelectedValue = commande.Suivi.IdSuivi;
+        }
+
+        private void dataGridViewCommandeLivresListe_SelectionChanged(object sender, EventArgs e)
+        {
+            if (bdgCommandeLivresListe.Current is CommandeDocument commande)
+            {
+                RemplirCommande(commande);
+                RemplirDetailsLivre(commande);
+            }
+            else
+            {
+                ViderDetailsLivre();
+            }
+        }
+
+        private void buttonCommandeLivreRechercher_Click(object sender, EventArgs e)
+        {
+            var input = textBoxCommandeLivreRecherche.Text.Trim();
+            if (string.IsNullOrEmpty(input))
+            {
+                RemplirCommandesLivreListe(lesCommandesLivres);
+                ViderDetailsLivre();
+                return;
+            }
+
+            // Recherche dans les commandes
+            var commandesFiltrees = lesCommandesLivres
+                .Where(c => c.IdDocument == input)
+                .ToList();
+
+            if (commandesFiltrees.Any())
+            {
+                RemplirCommandesLivreListe(commandesFiltrees);
+                return;
+            }
+
+            // Si absent des commandes : Recherche dans les livres
+            if (!lesLivres.Any())
+            {
+                lesLivres = controller.GetAllLivres();
+            }
+
+            var livre = lesLivres.FirstOrDefault(l => l.Id == input);
+
+            if (livre != null)
+            {
+                RemplirCommandesLivreListe(lesCommandesLivres);
+                RemplirDetailsLivreDepuisDocument(livre);
+
+                dataGridViewCommandeLivresListe.ClearSelection();
+                dataGridViewCommandeLivresListe.CurrentCell = null;
+            }
+            else
+            {
+                MessageBox.Show("Livre non trouvé", "Information",
+                    MessageBoxButtons.OK, MessageBoxIcon.Information);
+
+                RemplirCommandesLivreListe(lesCommandesLivres);
+                ViderDetailsLivre();
+            }
+        }
+
+
+
         #endregion
     }
 }

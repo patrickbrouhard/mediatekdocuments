@@ -62,10 +62,15 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="commands\CreerDocumentCommand.cs" />
+    <Compile Include="Dtos\CommandeDocumentDto.cs" />
     <Compile Include="manager\ApiRest.cs" />
     <Compile Include="controller\FrmMediatekController.cs" />
     <Compile Include="dal\Access.cs" />
+    <Compile Include="model\Commande.cs" />
+    <Compile Include="model\CommandeDocument.cs" />
+    <Compile Include="model\CommandeFactory.cs" />
     <Compile Include="model\DocumentFactory.cs" />
+    <Compile Include="model\Suivi.cs" />
     <Compile Include="view\FrmMediatek.cs">
       <SubType>Form</SubType>
     </Compile>

@@ -79,6 +79,15 @@ namespace MediaTekDocuments.controller
             return access.GetAllPublics();
         }
 
+        public List<CommandeDocument> GetAllCommandesDocuments(TypeMedia type)
+        {
+            return access.GetAllCommandesDocuments(type);
+        }
+
+        public List<Suivi> GetAllSuivis()
+        {
+            return access.GetAllSuivis();
+        }
 
         /// <summary>
         /// récupère les exemplaires d'une revue
