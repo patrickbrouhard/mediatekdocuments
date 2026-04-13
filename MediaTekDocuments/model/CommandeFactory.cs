@@ -1,58 +1,29 @@
-﻿using MediaTekDocuments.dto;
+﻿using MediaTekDocuments.commands;
 using System;
+using static MediaTekDocuments.view.FrmMediatek;
 
 namespace MediaTekDocuments.model
 {
     public static class CommandeFactory
     {
-        public static CommandeDocument Creer(CommandeDocumentDto dto)
+        public static Commande Creer(CreerCommandeCommand cmd)
         {
-            // 1. Création du suivi
-            var suivi = new Suivi(dto.IdSuivi, dto.LibelleEtat);
-
-            // 2. Déterminer le type de document
-            Document document;
-
-            if (dto.IdDocument.StartsWith("0"))
+            switch (cmd.Type)
             {
-                // Livre
-                document = new Livre(
-                    dto.IdDocument,
-                    dto.Titre,
-                    dto.Image,
-                    dto.Isbn,
-                    dto.Auteur,
-                    dto.Collection,
-                    "", dto.Genre,
-                    "", dto.Public,
-                    "", dto.Rayon
-                );
-            }
-            else
-            {
-                // DVD
-                document = new Dvd(
-                    dto.IdDocument,
-                    dto.Titre,
-                    dto.Image,
-                    dto.Duree ?? 0,
-                    dto.Realisateur,
-                    dto.Synopsis,
-                    "", dto.Genre,
-                    "", dto.Public,
-                    "", dto.Rayon
-                );
-            }
+                case TypeMedia.Livre:
+                case TypeMedia.Dvd:
+                    return new CommandeDocument(
+                        cmd.Id,
+                        cmd.DateCommande,
+                        cmd.Montant,
+                        cmd.NbExemplaire,
+                        cmd.IdLivreDvd,
+                        cmd.IdSuivi
+                    );
 
-            // 3. Création de la commande
-            return new CommandeDocument(
-                dto.IdCommande,
-                dto.DateCommande,
-                dto.Montant,
-                dto.NbExemplaire,
-                document,
-                suivi
-            );
+                default:
+                    throw new ArgumentException("Type de média non supporté");
+            } 
         }
     }
 }

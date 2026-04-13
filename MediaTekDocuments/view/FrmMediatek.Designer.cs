@@ -2234,7 +2234,7 @@ namespace MediaTekDocuments.view
             // 
             // textBoxLivreNumeroDansCommande
             // 
-            this.textBoxLivreNumeroDansCommande.Location = new System.Drawing.Point(282, 147);
+            this.textBoxLivreNumeroDansCommande.Location = new System.Drawing.Point(282, 69);
             this.textBoxLivreNumeroDansCommande.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.textBoxLivreNumeroDansCommande.Name = "textBoxLivreNumeroDansCommande";
             this.textBoxLivreNumeroDansCommande.ReadOnly = true;
@@ -2246,7 +2246,7 @@ namespace MediaTekDocuments.view
             // 
             this.label75.AutoSize = true;
             this.label75.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label75.Location = new System.Drawing.Point(11, 147);
+            this.label75.Location = new System.Drawing.Point(11, 69);
             this.label75.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label75.Name = "label75";
             this.label75.Size = new System.Drawing.Size(199, 20);
@@ -2257,7 +2257,7 @@ namespace MediaTekDocuments.view
             // 
             this.label74.AutoSize = true;
             this.label74.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label74.Location = new System.Drawing.Point(11, 223);
+            this.label74.Location = new System.Drawing.Point(11, 224);
             this.label74.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label74.Name = "label74";
             this.label74.Size = new System.Drawing.Size(198, 20);
@@ -2268,7 +2268,7 @@ namespace MediaTekDocuments.view
             // 
             this.label73.AutoSize = true;
             this.label73.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label73.Location = new System.Drawing.Point(11, 185);
+            this.label73.Location = new System.Drawing.Point(11, 186);
             this.label73.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label73.Name = "label73";
             this.label73.Size = new System.Drawing.Size(208, 20);
@@ -2279,7 +2279,7 @@ namespace MediaTekDocuments.view
             // 
             this.label72.AutoSize = true;
             this.label72.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label72.Location = new System.Drawing.Point(11, 108);
+            this.label72.Location = new System.Drawing.Point(11, 147);
             this.label72.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label72.Name = "label72";
             this.label72.Size = new System.Drawing.Size(88, 20);
@@ -2290,7 +2290,7 @@ namespace MediaTekDocuments.view
             // 
             this.label71.AutoSize = true;
             this.label71.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label71.Location = new System.Drawing.Point(11, 69);
+            this.label71.Location = new System.Drawing.Point(11, 108);
             this.label71.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label71.Name = "label71";
             this.label71.Size = new System.Drawing.Size(183, 20);
@@ -2317,12 +2317,13 @@ namespace MediaTekDocuments.view
             this.buttonCommandeLivreAnnuler.TabIndex = 35;
             this.buttonCommandeLivreAnnuler.Text = "Annuler";
             this.buttonCommandeLivreAnnuler.UseVisualStyleBackColor = true;
+            this.buttonCommandeLivreAnnuler.Click += new System.EventHandler(this.buttonCommandeLivreAnnuler_Click);
             // 
             // comboBoxCommandeLivreEtat
             // 
             this.comboBoxCommandeLivreEtat.Enabled = false;
             this.comboBoxCommandeLivreEtat.FormattingEnabled = true;
-            this.comboBoxCommandeLivreEtat.Location = new System.Drawing.Point(309, 223);
+            this.comboBoxCommandeLivreEtat.Location = new System.Drawing.Point(309, 224);
             this.comboBoxCommandeLivreEtat.Name = "comboBoxCommandeLivreEtat";
             this.comboBoxCommandeLivreEtat.Size = new System.Drawing.Size(121, 28);
             this.comboBoxCommandeLivreEtat.TabIndex = 41;
@@ -2336,10 +2337,11 @@ namespace MediaTekDocuments.view
             this.buttonCommandeLivreValider.TabIndex = 34;
             this.buttonCommandeLivreValider.Text = "Valider";
             this.buttonCommandeLivreValider.UseVisualStyleBackColor = true;
+            this.buttonCommandeLivreValider.Click += new System.EventHandler(this.buttonCommandeLivreValider_Click);
             // 
             // textBoxCommandeLivreNbExemplaires
             // 
-            this.textBoxCommandeLivreNbExemplaires.Location = new System.Drawing.Point(282, 185);
+            this.textBoxCommandeLivreNbExemplaires.Location = new System.Drawing.Point(282, 186);
             this.textBoxCommandeLivreNbExemplaires.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.textBoxCommandeLivreNbExemplaires.Name = "textBoxCommandeLivreNbExemplaires";
             this.textBoxCommandeLivreNbExemplaires.ReadOnly = true;
@@ -2349,7 +2351,7 @@ namespace MediaTekDocuments.view
             // 
             // textBoxCommandeLivreMontant
             // 
-            this.textBoxCommandeLivreMontant.Location = new System.Drawing.Point(282, 108);
+            this.textBoxCommandeLivreMontant.Location = new System.Drawing.Point(282, 147);
             this.textBoxCommandeLivreMontant.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.textBoxCommandeLivreMontant.Name = "textBoxCommandeLivreMontant";
             this.textBoxCommandeLivreMontant.ReadOnly = true;
@@ -2360,7 +2362,7 @@ namespace MediaTekDocuments.view
             // dateTimePickerCommandeLivreDate
             // 
             this.dateTimePickerCommandeLivreDate.Enabled = false;
-            this.dateTimePickerCommandeLivreDate.Location = new System.Drawing.Point(230, 69);
+            this.dateTimePickerCommandeLivreDate.Location = new System.Drawing.Point(230, 108);
             this.dateTimePickerCommandeLivreDate.Name = "dateTimePickerCommandeLivreDate";
             this.dateTimePickerCommandeLivreDate.Size = new System.Drawing.Size(200, 26);
             this.dateTimePickerCommandeLivreDate.TabIndex = 37;
@@ -2613,6 +2615,7 @@ namespace MediaTekDocuments.view
             this.buttonCommandeLivreSupprimer.Tag = "";
             this.buttonCommandeLivreSupprimer.Text = "Supprimer";
             this.buttonCommandeLivreSupprimer.UseVisualStyleBackColor = true;
+            this.buttonCommandeLivreSupprimer.Click += new System.EventHandler(this.buttonCommandeLivreSupprimer_Click);
             // 
             // buttonCommandeLivreModifier
             // 
@@ -2624,6 +2627,7 @@ namespace MediaTekDocuments.view
             this.buttonCommandeLivreModifier.Tag = "";
             this.buttonCommandeLivreModifier.Text = "Modifier";
             this.buttonCommandeLivreModifier.UseVisualStyleBackColor = true;
+            this.buttonCommandeLivreModifier.Click += new System.EventHandler(this.buttonCommandeLivreModifier_Click);
             // 
             // buttonCommandeLivreAjouter
             // 
@@ -2635,11 +2639,12 @@ namespace MediaTekDocuments.view
             this.buttonCommandeLivreAjouter.Tag = "";
             this.buttonCommandeLivreAjouter.Text = "Ajouter";
             this.buttonCommandeLivreAjouter.UseVisualStyleBackColor = true;
+            this.buttonCommandeLivreAjouter.Click += new System.EventHandler(this.buttonCommandeLivreAjouter_Click);
             // 
             // buttonCommandeLivreRechercher
             // 
             this.buttonCommandeLivreRechercher.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.buttonCommandeLivreRechercher.Location = new System.Drawing.Point(471, 514);
+            this.buttonCommandeLivreRechercher.Location = new System.Drawing.Point(415, 514);
             this.buttonCommandeLivreRechercher.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.buttonCommandeLivreRechercher.Name = "buttonCommandeLivreRechercher";
             this.buttonCommandeLivreRechercher.Size = new System.Drawing.Size(144, 34);
@@ -2652,7 +2657,7 @@ namespace MediaTekDocuments.view
             // 
             this.label70.AutoSize = true;
             this.label70.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label70.Location = new System.Drawing.Point(9, 516);
+            this.label70.Location = new System.Drawing.Point(9, 518);
             this.label70.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label70.Name = "label70";
             this.label70.Size = new System.Drawing.Size(277, 20);
@@ -2661,7 +2666,7 @@ namespace MediaTekDocuments.view
             // 
             // textBoxCommandeLivreRecherche
             // 
-            this.textBoxCommandeLivreRecherche.Location = new System.Drawing.Point(330, 516);
+            this.textBoxCommandeLivreRecherche.Location = new System.Drawing.Point(299, 517);
             this.textBoxCommandeLivreRecherche.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.textBoxCommandeLivreRecherche.Name = "textBoxCommandeLivreRecherche";
             this.textBoxCommandeLivreRecherche.Size = new System.Drawing.Size(98, 26);
@@ -2674,7 +2679,7 @@ namespace MediaTekDocuments.view
             this.dataGridViewCommandeLivresListe.AllowUserToResizeColumns = false;
             this.dataGridViewCommandeLivresListe.AllowUserToResizeRows = false;
             this.dataGridViewCommandeLivresListe.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            this.dataGridViewCommandeLivresListe.Location = new System.Drawing.Point(14, 48);
+            this.dataGridViewCommandeLivresListe.Location = new System.Drawing.Point(14, 44);
             this.dataGridViewCommandeLivresListe.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.dataGridViewCommandeLivresListe.MultiSelect = false;
             this.dataGridViewCommandeLivresListe.Name = "dataGridViewCommandeLivresListe";

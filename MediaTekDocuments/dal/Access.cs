@@ -1,4 +1,5 @@
-﻿using MediaTekDocuments.dto;
+﻿using MediaTekDocuments.commands;
+using MediaTekDocuments.dto;
 using MediaTekDocuments.manager;
 using MediaTekDocuments.model;
 using Newtonsoft.Json;
@@ -9,6 +10,7 @@ using System.Collections.Generic;
 using System.Configuration;
 using System.Diagnostics;
 using System.Linq;
+using System.Net;
 using static MediaTekDocuments.view.FrmMediatek;
 
 namespace MediaTekDocuments.dal
@@ -141,6 +143,15 @@ namespace MediaTekDocuments.dal
             return lesRevues;
         }
 
+        /// <summary>
+        /// Retourne tous les états de suivi
+        /// </summary>
+        /// <returns>Liste d'objets Suivi</returns>
+        public List<Suivi> GetAllSuivis()
+        {
+            List<Suivi> lesSuivis = TraitementRecup<Suivi>(GET, "suivi", null);
+            return lesSuivis;
+        }
 
         /// <summary>
         /// Retourne les exemplaires d'une revue
@@ -237,6 +248,7 @@ namespace MediaTekDocuments.dal
                 return false;
             }
         }
+
         /// <summary>
         /// Met à jour un document existant dans la base de données
         /// </summary>
@@ -377,35 +389,69 @@ namespace MediaTekDocuments.dal
             switch (type)
             {
                 case TypeMedia.Livre:
-                    endpoint = "commandedocumentlivre";
-                    break;
                 case TypeMedia.Dvd:
-                    endpoint = "commandedocumentdvd";
+                    endpoint = "commandedocument"; // pour tester
                     break;
                 default:
                     throw new ArgumentException("TypeMedia invalide");
             }
 
-            var dtos = TraitementRecup<CommandeDocumentDto>(GET, endpoint, null);
-
-            Debug.WriteLine(dtos[0].Public);
-
-            return dtos
-                .Select(dto => CommandeFactory.Creer(dto))
-                .ToList();
+            return TraitementRecup<CommandeDocument>(GET, endpoint, null);
         }
 
-        /// <summary>
-        /// Retourne tous les états de suivi
-        /// </summary>
-        /// <returns>Liste d'objets Suivi</returns>
-        public List<Suivi> GetAllSuivis()
+        public bool AjouterCommande(Commande commande)
         {
-            List<Suivi> lesSuivis = TraitementRecup<Suivi>(GET, "suivi", null);
-            return lesSuivis;
+            string json = JsonConvert.SerializeObject(commande, new CustomDateTimeConverter());
+
+            Debug.WriteLine("json dans AjouterCommande : " + json);
+
+            try
+            {
+                return ExecuteCommande(POST, commande.Endpoint, "champs=" + json);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+                return false;
+            }
         }
 
+        public bool ModifierCommande(Commande commande)
+        {
+            string endpoint = $"{commande.Endpoint}/{commande.Id}";
+            string json = JsonConvert.SerializeObject(commande, new CustomDateTimeConverter());
 
+            Debug.WriteLine("endpoint dans ModifierCommande : " + endpoint);
+            Debug.WriteLine("json dans ModifierCommande : " + json);
+
+            try
+            {
+                return ExecuteCommande(PUT, endpoint, "champs=" + json);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+                return false;
+            }
+        }
+
+        public bool SupprimerCommande(Commande commande)
+        {
+            string json = JsonConvert.SerializeObject(new { id = commande.Id });
+            string encodedJson = Uri.EscapeDataString(json);
+
+            string endpoint = $"{commande.Endpoint}/{encodedJson}";
+
+            try
+            {
+                return ExecuteCommande(DELETE, endpoint, null);
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine(ex.Message);
+                return false;
+            }
+        }
 
         #endregion
     }

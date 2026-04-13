@@ -125,5 +125,21 @@ namespace MediaTekDocuments.controller
             Document doc = DocumentFactory.Creer(new CreerDocumentCommand { Type = type, Id = id });
             return access.SupprimerDocument(doc);
         }
+
+        public bool SauvegarderCommande(CreerCommandeCommand cmd, bool isNew)
+        {
+            Commande commande = CommandeFactory.Creer(cmd);
+
+            if (isNew)
+                return access.AjouterCommande(commande);
+            else
+                return access.ModifierCommande(commande);
+        }
+
+        public bool SupprimerCommande(TypeMedia type, string id)
+        {
+            Commande commande = CommandeFactory.Creer(new CreerCommandeCommand { Type = type, Id = id });
+            return access.SupprimerCommande(commande);
+        }
     }
 }

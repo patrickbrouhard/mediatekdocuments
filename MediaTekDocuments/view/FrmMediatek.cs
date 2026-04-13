@@ -1722,6 +1722,71 @@ namespace MediaTekDocuments.view
         }
         #endregion
 
+        #region Commandes
+
+
+
+        private bool CreerCommande(TypeMedia type, bool isNew)
+        {
+            // validation des champs obligatoires
+            if (!isNew && string.IsNullOrWhiteSpace(textBoxLCommandeLivreNumero.Text))
+            {
+                MessageBox.Show("Numéro de commande obligatoire");
+                return false;
+            }
+
+            if (string.IsNullOrWhiteSpace(textBoxLivreNumeroDansCommande.Text))
+            {
+                MessageBox.Show("Document obligatoire");
+                return false;
+            }
+
+            // vérifier que textBoxLivreNumeroDansCommande.Text correspond à un livre existant
+            var livre = lesLivres.FirstOrDefault(l => l.Id == textBoxLivreNumeroDansCommande.Text);
+            if (livre == null)
+            {
+                MessageBox.Show("Ce livre n'existe pas.");
+                return false;
+            }
+
+            if (!int.TryParse(textBoxCommandeLivreNbExemplaires.Text, out int nbExemplaires) || nbExemplaires <= 0)
+            {
+                MessageBox.Show("Nombre d'exemplaires invalide");
+                return false;
+            }
+
+            if (!double.TryParse(textBoxCommandeLivreMontant.Text, out double montant) || montant < 0)
+            {
+                MessageBox.Show("Montant invalide");
+                return false;
+            }
+
+            if (comboBoxCommandeLivreEtat.SelectedValue == null)
+            {
+                MessageBox.Show("Etat obligatoire");
+                return false;
+            }
+
+            // construction du command
+            var cmd = new CreerCommandeCommand
+            {
+                Type = type,
+                Id = textBoxLCommandeLivreNumero.Text,
+                DateCommande = dateTimePickerCommandeLivreDate.Value,
+                Montant = montant,
+                NbExemplaire = nbExemplaires,
+                IdLivreDvd = textBoxLivreNumeroDansCommande.Text,
+                IdSuivi = (int)comboBoxCommandeLivreEtat.SelectedValue
+            };
+
+            Debug.WriteLine($"controller.SauvegarderCommande, isNew : {isNew} - Id : {cmd.Id}, Livre/Dvd : {cmd.IdLivreDvd}, NbExemplaires : {cmd.NbExemplaire}, Montant : {cmd.Montant}, Date : {cmd.DateCommande}, IdSuivi : {cmd.IdSuivi}");
+            // envoi
+            bool succes = controller.SauvegarderCommande(cmd, isNew);
+            return succes;
+        }
+
+        #endregion
+
         #region OngletCommandesLivres
 
         private readonly BindingSource bdgCommandeLivresListe = new BindingSource();
@@ -1732,6 +1797,152 @@ namespace MediaTekDocuments.view
             lesCommandesLivres = controller.GetAllCommandesDocuments(TypeMedia.Livre);
             RemplirCommandesLivreListe(lesCommandesLivres);
             ChargerSuivis();
+        }
+
+        private void SetModeCommandeLivre(Operation operation)
+        {
+            bool edition = operation == Operation.Ajouter || operation == Operation.Modifier;
+
+            dataGridViewCommandeLivresListe.Enabled = !edition;
+
+            // Champs éditables
+            dateTimePickerCommandeLivreDate.Enabled = edition;
+            textBoxCommandeLivreMontant.ReadOnly = !edition;
+            textBoxCommandeLivreNbExemplaires.ReadOnly = !edition;
+            comboBoxCommandeLivreEtat.Enabled = edition;
+            textBoxCommandeLivreRecherche.Enabled = !edition;
+
+            // Modifiable uniquement à la création
+            textBoxLivreNumeroDansCommande.ReadOnly = operation != Operation.Ajouter;
+
+            // ID protégé
+            textBoxLCommandeLivreNumero.ReadOnly = true;
+
+            // Boutons
+            buttonCommandeLivreAjouter.Enabled = !edition;
+            buttonCommandeLivreModifier.Enabled = !edition;
+            buttonCommandeLivreSupprimer.Enabled = !edition;
+
+            buttonCommandeLivreValider.Enabled = edition;
+            buttonCommandeLivreAnnuler.Enabled = edition;
+
+            // Gestion du focus uniquement en mode édition
+            if (edition)
+            {
+                Control focusControl = operation == Operation.Ajouter
+                    ? textBoxLivreNumeroDansCommande
+                    : textBoxCommandeLivreMontant;
+
+                focusControl.Focus();
+            }
+        }
+
+        private void buttonCommandeLivreAjouter_Click(object sender, EventArgs e)
+        {
+            operationEnCours = Operation.Ajouter;
+
+            ViderCommande();
+            if (textBoxCommandeLivreRecherche.Text != "")
+            {
+                textBoxLivreNumeroDansCommande.Text = textBoxCommandeLivreRecherche.Text.Trim();
+                textBoxCommandeLivreRecherche.Text = "";
+            }
+            SetModeCommandeLivre(operationEnCours);
+        }
+
+        private void buttonCommandeLivreModifier_Click(object sender, EventArgs e)
+        {
+            if (bdgCommandeLivresListe.Count == 0)
+            {
+                MessageBox.Show("Aucune commande disponible.");
+                return;
+            }
+
+            if (!(bdgCommandeLivresListe.Current is CommandeDocument commande))
+            {
+                MessageBox.Show("Veuillez sélectionner une commande à modifier.", "Information", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                return;
+            }
+
+            operationEnCours = Operation.Modifier;
+            SetModeCommandeLivre(operationEnCours);
+
+            RemplirCommande(commande);
+            RemplirDetailsLivre(commande);
+        }
+
+        private void buttonCommandeLivreSupprimer_Click(object sender, EventArgs e)
+        {
+            if (bdgCommandeLivresListe.Count == 0)
+            {
+                MessageBox.Show("Aucune commande disponible.");
+                return;
+            }
+
+            if (!(bdgCommandeLivresListe.Current is CommandeDocument commande))
+            {
+                MessageBox.Show("Veuillez sélectionner une commande à modifier.", "Information", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                return;
+            }
+
+            operationEnCours = Operation.Supprimer;
+
+            var result = MessageBox.Show(
+                $"Supprimer la commande numéro '{commande.IdDocument}' ?",
+                "Confirmation",
+                MessageBoxButtons.YesNo,
+                MessageBoxIcon.Warning);
+
+            if (result == DialogResult.Yes)
+            {
+                bool success = controller.SupprimerCommande(TypeMedia.Livre, commande.Id);
+                if (success)
+                {
+                    MessageBox.Show("Commande supprimée");
+                    lesCommandesLivres = controller.GetAllCommandesDocuments(TypeMedia.Livre);
+                    RemplirCommandesLivreListe(lesCommandesLivres);
+                    ViderDetailsLivre();
+                }
+                else
+                {
+                    MessageBox.Show("Erreur lors de la suppression");
+                }
+            }
+
+            operationEnCours = Operation.None;
+            tabCommandeLivre_Enter(null, null);
+        }
+
+        private void buttonCommandeLivreAnnuler_Click(object sender, EventArgs e)
+        {
+            operationEnCours = Operation.None;
+            SetModeCommandeLivre(Operation.None);
+            tabCommandeLivre_Enter(null, null);
+        }
+
+        private void buttonCommandeLivreValider_Click(object sender, EventArgs e)
+        {
+            if (operationEnCours != Operation.Ajouter && operationEnCours != Operation.Modifier)
+            {
+                MessageBox.Show("Aucune opération en cours.", "Erreur", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            bool isNew = operationEnCours == Operation.Ajouter;
+
+            bool success = CreerCommande(TypeMedia.Livre, isNew);
+            if (success)
+            {
+                MessageBox.Show(isNew ? "Commande créée" : "Commande modifiée");
+
+                operationEnCours = Operation.None;
+                SetModeCommandeLivre(Operation.None);
+                // refresh
+                tabCommandeLivre_Enter(null, null);
+
+            } else {
+                MessageBox.Show("Erreur lors de l'enregistrement");
+            }
         }
 
         private void ChargerSuivis()
@@ -1792,17 +2003,20 @@ namespace MediaTekDocuments.view
 
         private void RemplirDetailsLivre(CommandeDocument commande)
         {
-            if (commande.Document is Livre livre)
+            if (!lesLivres.Any())
             {
-                textBoxLivreNumero.Text = livre.Id;
-                textBoxLivreIsbn.Text = livre.Isbn;
-                textBoxLivreTitre.Text = livre.Titre;
-                textBoxLivreAuteur.Text = livre.Auteur;
-                textBoxLivreCollection.Text = livre.Collection;
-                textBoxLivreGenre.Text = livre.Genre;
-                textBoxLivrePublic.Text = livre.Public;
-                textBoxLivreRayon.Text = livre.Rayon;
-                textBoxLivreImage.Text = livre.Image;
+                lesLivres = controller.GetAllLivres();
+            }
+
+            var livre = lesLivres.FirstOrDefault(l => l.Id == commande.IdLivreDvd);
+
+            if (livre != null)
+            {
+                RemplirDetailsLivreDepuisDocument(livre);
+            }
+            else
+            {
+                ViderDetailsLivre();
             }
         }
 
@@ -1842,10 +2056,20 @@ namespace MediaTekDocuments.view
             dateTimePickerCommandeLivreDate.Value = commande.DateCommande;
             textBoxCommandeLivreMontant.Text = commande.Montant.ToString("0.00");
 
-            textBoxLivreNumeroDansCommande.Text = commande.Document.Id;
+            textBoxLivreNumeroDansCommande.Text = commande.IdLivreDvd;
             textBoxCommandeLivreNbExemplaires.Text = commande.NbExemplaire.ToString();
 
-            comboBoxCommandeLivreEtat.SelectedValue = commande.Suivi.IdSuivi;
+            comboBoxCommandeLivreEtat.SelectedValue = commande.IdSuivi;
+        }
+
+        private void ViderCommande()
+        {
+            textBoxLCommandeLivreNumero.Text = "";
+            dateTimePickerCommandeLivreDate.Value = DateTime.Now;
+            textBoxCommandeLivreMontant.Text = "";
+            textBoxLivreNumeroDansCommande.Text = "";
+            textBoxCommandeLivreNbExemplaires.Text = "";
+            comboBoxCommandeLivreEtat.SelectedIndex = -1;
         }
 
         private void dataGridViewCommandeLivresListe_SelectionChanged(object sender, EventArgs e)
@@ -1892,15 +2116,14 @@ namespace MediaTekDocuments.view
 
             if (livre != null)
             {
-                RemplirCommandesLivreListe(lesCommandesLivres);
-                RemplirDetailsLivreDepuisDocument(livre);
-
                 dataGridViewCommandeLivresListe.ClearSelection();
                 dataGridViewCommandeLivresListe.CurrentCell = null;
+
+                RemplirDetailsLivreDepuisDocument(livre);
             }
             else
             {
-                MessageBox.Show("Livre non trouvé", "Information",
+                MessageBox.Show("Aucun livre trouvé", "Information",
                     MessageBoxButtons.OK, MessageBoxIcon.Information);
 
                 RemplirCommandesLivreListe(lesCommandesLivres);
@@ -1911,5 +2134,6 @@ namespace MediaTekDocuments.view
 
 
         #endregion
+
     }
 }
