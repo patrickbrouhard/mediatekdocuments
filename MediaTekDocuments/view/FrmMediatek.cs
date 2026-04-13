@@ -1724,46 +1724,37 @@ namespace MediaTekDocuments.view
 
         #region Commandes
 
+        // Enum pour les états de suivi d'une commande
+        public enum EtatSuivi
+        {
+            EnCours = 1,
+            Relancee = 2,
+            Livree = 3,
+            Reglee = 4
+        }
 
+        // Dictionnaire des transitions autorisées entre les états de suivi
+        private static Dictionary<EtatSuivi, List<EtatSuivi>> transitionsAutorisees = new Dictionary<EtatSuivi, List<EtatSuivi>>
+        {
+            // depuis "En cours", on peut passer à "Relancée" ou "Livrée"
+            { EtatSuivi.EnCours, new List<EtatSuivi> { EtatSuivi.Relancee, EtatSuivi.Livree } },
+
+            // une fois relancée, seule la transition vers livrée est autorisée
+            { EtatSuivi.Relancee, new List<EtatSuivi> { EtatSuivi.Livree } },
+
+            // une fois livrée, seule la transition vers réglée est autorisée
+            { EtatSuivi.Livree, new List<EtatSuivi> { EtatSuivi.Reglee } },
+
+            // une fois réglée, pas de transition possible
+            { EtatSuivi.Reglee, new List<EtatSuivi>() }
+        };
 
         private bool CreerCommande(TypeMedia type, bool isNew)
         {
             // validation des champs obligatoires
-            if (!isNew && string.IsNullOrWhiteSpace(textBoxLCommandeLivreNumero.Text))
+            if (!ValiderChampsCommandeDocument(isNew, out string erreur))
             {
-                MessageBox.Show("Numéro de commande obligatoire");
-                return false;
-            }
-
-            if (string.IsNullOrWhiteSpace(textBoxLivreNumeroDansCommande.Text))
-            {
-                MessageBox.Show("Document obligatoire");
-                return false;
-            }
-
-            // vérifier que textBoxLivreNumeroDansCommande.Text correspond à un livre existant
-            var livre = lesLivres.FirstOrDefault(l => l.Id == textBoxLivreNumeroDansCommande.Text);
-            if (livre == null)
-            {
-                MessageBox.Show("Ce livre n'existe pas.");
-                return false;
-            }
-
-            if (!int.TryParse(textBoxCommandeLivreNbExemplaires.Text, out int nbExemplaires) || nbExemplaires <= 0)
-            {
-                MessageBox.Show("Nombre d'exemplaires invalide");
-                return false;
-            }
-
-            if (!double.TryParse(textBoxCommandeLivreMontant.Text, out double montant) || montant < 0)
-            {
-                MessageBox.Show("Montant invalide");
-                return false;
-            }
-
-            if (comboBoxCommandeLivreEtat.SelectedValue == null)
-            {
-                MessageBox.Show("Etat obligatoire");
+                MessageBox.Show(erreur);
                 return false;
             }
 
@@ -1773,8 +1764,8 @@ namespace MediaTekDocuments.view
                 Type = type,
                 Id = textBoxLCommandeLivreNumero.Text,
                 DateCommande = dateTimePickerCommandeLivreDate.Value,
-                Montant = montant,
-                NbExemplaire = nbExemplaires,
+                NbExemplaire = int.Parse(textBoxCommandeLivreNbExemplaires.Text),
+                Montant = double.Parse(textBoxCommandeLivreMontant.Text),
                 IdLivreDvd = textBoxLivreNumeroDansCommande.Text,
                 IdSuivi = (int)comboBoxCommandeLivreEtat.SelectedValue
             };
@@ -1919,8 +1910,20 @@ namespace MediaTekDocuments.view
             operationEnCours = Operation.None;
             SetModeCommandeLivre(Operation.None);
             tabCommandeLivre_Enter(null, null);
+
+            // repositionnement sur la première commande si la liste n'est pas vide
+            if (lesCommandesLivres.Any())
+            {
+                bdgCommandeLivresListe.Position = 0;
+            }
         }
 
+        /// <summary>
+        /// Gère la validation d'une commande de livre lors du clic sur le bouton de validation. Selon l'opération en
+        /// cours, crée ou modifie une commande de livre et affiche un message de confirmation ou d'erreur.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void buttonCommandeLivreValider_Click(object sender, EventArgs e)
         {
             if (operationEnCours != Operation.Ajouter && operationEnCours != Operation.Modifier)
@@ -1930,20 +1933,108 @@ namespace MediaTekDocuments.view
             }
 
             bool isNew = operationEnCours == Operation.Ajouter;
+            string idCommande = textBoxLCommandeLivreNumero.Text;
 
             bool success = CreerCommande(TypeMedia.Livre, isNew);
+
             if (success)
             {
                 MessageBox.Show(isNew ? "Commande créée" : "Commande modifiée");
 
                 operationEnCours = Operation.None;
                 SetModeCommandeLivre(Operation.None);
-                // refresh
-                tabCommandeLivre_Enter(null, null);
 
-            } else {
+                // rechargement de la liste des commandes pour afficher les changements
+                lesCommandesLivres = controller.GetAllCommandesDocuments(TypeMedia.Livre);
+                RemplirCommandesLivreListe(lesCommandesLivres);
+
+                // repositionnement sur la commande modifiée ou créée
+                var updated = lesCommandesLivres.FirstOrDefault(c => c.Id == idCommande);
+                if (updated != null)
+                {
+                    bdgCommandeLivresListe.Position = lesCommandesLivres.IndexOf(updated);
+                }
+            }
+            else
+            {
                 MessageBox.Show("Erreur lors de l'enregistrement");
             }
+        }
+
+        /// <summary>
+        /// Valide les champs saisis pour une commande de document et indique si les données sont correctes pour
+        /// l'enregistrement ou la modification.
+        /// </summary>
+        /// <param name="isNew">Indique si la commande est nouvelle ou s'il s'agit d'une modification existante</param>
+        /// <param name="messageErreur">Contient le message d'erreur descriptif si la validation échoue</param>
+        /// <returns>true si tous les champs de la commande sont valides</returns>
+        private bool ValiderChampsCommandeDocument(bool isNew, out string messageErreur)
+        {
+            // Numéro de commande obligatoire si modification
+            if (!isNew && string.IsNullOrWhiteSpace(textBoxLCommandeLivreNumero.Text))
+            {
+                messageErreur = "Numéro de commande obligatoire";
+                return false;
+            }
+
+            // Document obligatoire
+            if (string.IsNullOrWhiteSpace(textBoxLivreNumeroDansCommande.Text))
+            {
+                messageErreur = "Document obligatoire";
+                return false;
+            }
+
+            // Vérifier que le livre existe
+            var livre = lesLivres.FirstOrDefault(l => l.Id == textBoxLivreNumeroDansCommande.Text);
+            if (livre == null)
+            {
+                messageErreur = "Ce livre n'existe pas.";
+                return false;
+            }
+
+            // Nombre d'exemplaires
+            if (!int.TryParse(textBoxCommandeLivreNbExemplaires.Text, out int nbExemplaires) || nbExemplaires <= 0)
+            {
+                messageErreur = "Nombre d'exemplaires invalide";
+                return false;
+            }
+
+            // Montant
+            if (!double.TryParse(textBoxCommandeLivreMontant.Text, out double montant) || montant < 0)
+            {
+                messageErreur = "Montant invalide";
+                return false;
+            }
+
+            // État obligatoire
+            if (comboBoxCommandeLivreEtat.SelectedValue == null)
+            {
+                messageErreur = "État obligatoire";
+                return false;
+            }
+
+            if (!isNew)
+            {
+                var commande = lesCommandesLivres
+                    .FirstOrDefault(c => c.Id == textBoxLCommandeLivreNumero.Text);
+
+                EtatSuivi nouvelEtat = (EtatSuivi)((int)comboBoxCommandeLivreEtat.SelectedValue);
+                EtatSuivi ancienIdSuivi = (EtatSuivi)commande.IdSuivi;
+
+                var transitionValide =
+                    ancienIdSuivi == nouvelEtat 
+                    || transitionsAutorisees.ContainsKey(ancienIdSuivi) 
+                    && transitionsAutorisees[ancienIdSuivi].Contains(nouvelEtat);
+
+                if (!transitionValide)
+                {
+                    messageErreur = $"Transition d'état invalide : {ancienIdSuivi} -> {nouvelEtat}";
+                    return false;
+                }
+            }
+
+            messageErreur = null;
+            return true;
         }
 
         private void ChargerSuivis()
@@ -2000,6 +2091,7 @@ namespace MediaTekDocuments.view
             });
 
             dataGridViewCommandeLivresListe.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.AllCells;
+            dataGridViewCommandeLivresListe.AutoResizeColumns();
         }
 
         private void RemplirDetailsLivre(CommandeDocument commande)
@@ -2053,14 +2145,19 @@ namespace MediaTekDocuments.view
 
         private void RemplirCommande(CommandeDocument commande)
         {
-            textBoxLCommandeLivreNumero.Text = commande.Id;
+            if (commande == null) return;
+
+            textBoxLCommandeLivreNumero.Text = commande.Id ?? "";
             dateTimePickerCommandeLivreDate.Value = commande.DateCommande;
             textBoxCommandeLivreMontant.Text = commande.Montant.ToString("0.00");
 
-            textBoxLivreNumeroDansCommande.Text = commande.IdLivreDvd;
+            textBoxLivreNumeroDansCommande.Text = commande.IdLivreDvd ?? "";
             textBoxCommandeLivreNbExemplaires.Text = commande.NbExemplaire.ToString();
 
-            comboBoxCommandeLivreEtat.SelectedValue = commande.IdSuivi;
+            if (commande.IdSuivi != 0)
+            {
+                comboBoxCommandeLivreEtat.SelectedValue = commande.IdSuivi;
+            }
         }
 
         private void ViderCommande()
@@ -2075,15 +2172,45 @@ namespace MediaTekDocuments.view
 
         private void dataGridViewCommandeLivresListe_SelectionChanged(object sender, EventArgs e)
         {
-            if (bdgCommandeLivresListe.Current is CommandeDocument commande)
-            {
-                RemplirCommande(commande);
-                RemplirDetailsLivre(commande);
-            }
-            else
+            if (!(bdgCommandeLivresListe.Current is CommandeDocument commande))
             {
                 ViderDetailsLivre();
+                return;
             }
+
+            RemplirCommande(commande);
+            RemplirDetailsLivre(commande);
+            FiltrerEtatsSuivisDisponibles(commande);
+        }
+
+        private void FiltrerEtatsSuivisDisponibles(CommandeDocument commande)
+        {
+            if (commande == null) return;
+            if (!transitionsAutorisees.ContainsKey((EtatSuivi)commande.IdSuivi))
+                return;
+
+            var etatActuel = (EtatSuivi)commande.IdSuivi;
+
+            // inclut également l'état actuel pour permettre de ne pas changer l'état. Bah oui. Evidemment.
+            var etatsAutorises = transitionsAutorisees[etatActuel]
+                .Append(etatActuel)
+                .ToList();
+
+            var tousLesSuivis = controller.GetAllSuivis();
+            if (tousLesSuivis == null) return;
+            comboBoxCommandeLivreEtat.DataSource = null;
+
+            // filtre les suivis pour n'afficher que ceux autorisés pour la transition (LINQ)
+            var suivisFiltres = tousLesSuivis
+                .Where(s => etatsAutorises.Contains((EtatSuivi)s.IdSuivi))
+                .ToList();
+
+            comboBoxCommandeLivreEtat.DataSource = suivisFiltres;
+            comboBoxCommandeLivreEtat.DisplayMember = "LibelleEtat";
+            comboBoxCommandeLivreEtat.ValueMember = "IdSuivi";
+
+            // réinitialise la sélection à l'état actuel de la commande
+            comboBoxCommandeLivreEtat.SelectedValue = commande.IdSuivi;
         }
 
         private void buttonCommandeLivreRechercher_Click(object sender, EventArgs e)
