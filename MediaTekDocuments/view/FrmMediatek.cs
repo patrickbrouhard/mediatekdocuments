@@ -2131,7 +2131,34 @@ namespace MediaTekDocuments.view
             }
         }
 
+        private void dataGridViewCommandeLivresListe_ColumnHeaderMouseClick(object sender, DataGridViewCellMouseEventArgs e)
+        {
+            string titreColonne = dataGridViewCommandeLivresListe.Columns[e.ColumnIndex].HeaderText;
+            List<CommandeDocument> sortedList = new List<CommandeDocument>();
 
+            switch (titreColonne)
+            {
+                case "Id":
+                    sortedList = lesCommandesLivres.OrderBy(o => o.Id).ToList();
+                    break;
+                case "Id Document":
+                    sortedList =lesCommandesLivres.OrderBy(o => o.IdDocument).ToList();
+                    break;
+                case "Exemplaires":
+                    sortedList =lesCommandesLivres.OrderBy(o => o.NbExemplaire).ToList();
+                    break;
+                case "Etat":
+                    sortedList =lesCommandesLivres.OrderBy(o => o.LibelleSuivi).ToList();
+                    break;
+                case "Date":
+                    sortedList =lesCommandesLivres.OrderBy(o => o.DateCommande).ToList();
+                    break;
+                case "Montant":
+                    sortedList =lesCommandesLivres.OrderBy(o => o.Montant).ToList();
+                    break;
+            }
+            RemplirCommandesLivreListe(sortedList);
+        }
 
         #endregion
 

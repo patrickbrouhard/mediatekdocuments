@@ -2689,6 +2689,7 @@ namespace MediaTekDocuments.view
             this.dataGridViewCommandeLivresListe.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
             this.dataGridViewCommandeLivresListe.Size = new System.Drawing.Size(1266, 429);
             this.dataGridViewCommandeLivresListe.TabIndex = 4;
+            this.dataGridViewCommandeLivresListe.ColumnHeaderMouseClick += new System.Windows.Forms.DataGridViewCellMouseEventHandler(this.dataGridViewCommandeLivresListe_ColumnHeaderMouseClick);
             this.dataGridViewCommandeLivresListe.SelectionChanged += new System.EventHandler(this.dataGridViewCommandeLivresListe_SelectionChanged);
             // 
             // FrmMediatek
