@@ -1847,6 +1847,7 @@ namespace MediaTekDocuments.view
                 textBoxLivreNumeroDansCommande.Text = textBoxCommandeLivreRecherche.Text.Trim();
                 textBoxCommandeLivreRecherche.Text = "";
             }
+            comboBoxCommandeLivreEtat.SelectedIndex = 0;
             SetModeCommandeLivre(operationEnCours);
         }
 
