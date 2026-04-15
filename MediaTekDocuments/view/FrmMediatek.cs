@@ -1727,6 +1727,7 @@ namespace MediaTekDocuments.view
         // Enum pour les états de suivi d'une commande
         public enum EtatSuivi
         {
+            Initial = 0,
             EnCours = 1,
             Relancee = 2,
             Livree = 3,
@@ -1734,8 +1735,11 @@ namespace MediaTekDocuments.view
         }
 
         // Dictionnaire des transitions autorisées entre les états de suivi
-        private static Dictionary<EtatSuivi, List<EtatSuivi>> transitionsAutorisees = new Dictionary<EtatSuivi, List<EtatSuivi>>
+        private static readonly Dictionary<EtatSuivi, List<EtatSuivi>> transitionsAutorisees = new Dictionary<EtatSuivi, List<EtatSuivi>>
         {
+            // depuis "Initial", on peut passer uniquement à "En cours"
+            { EtatSuivi.Initial, new List<EtatSuivi> { EtatSuivi.EnCours } },
+
             // depuis "En cours", on peut passer à "Relancée" ou "Livrée"
             { EtatSuivi.EnCours, new List<EtatSuivi> { EtatSuivi.Relancee, EtatSuivi.Livree } },
 
@@ -1748,6 +1752,15 @@ namespace MediaTekDocuments.view
             // une fois réglée, pas de transition possible
             { EtatSuivi.Reglee, new List<EtatSuivi>() }
         };
+        private static bool IsTransitionValide(EtatSuivi ancienEtat, EtatSuivi nouvelEtat)
+        {
+            // même état : pas de changement, donc valide
+            if (ancienEtat == nouvelEtat) { return true; }
+            // pas de transition définie pour l'état actuel : aucune transition autorisée
+            if (!transitionsAutorisees.ContainsKey(ancienEtat)) { return false; }
+
+            return transitionsAutorisees[ancienEtat].Contains(nouvelEtat);
+        }
 
         private void ChargerSuivis()
         {
@@ -1763,13 +1776,15 @@ namespace MediaTekDocuments.view
         }
 
 
-        private void FiltrerEtatsSuivisDisponibles(CommandeDocument commande, ComboBox comboBox)
+        private void FiltrerEtatsSuivisDisponibles(CommandeDocument commande, ComboBox comboBox, Operation operationEnCours)
         {
-            if (commande == null) return;
-            if (!transitionsAutorisees.ContainsKey((EtatSuivi)commande.IdSuivi))
-                return;
+            if (commande == null && operationEnCours != Operation.Ajouter) return;
 
-            var etatActuel = (EtatSuivi)commande.IdSuivi;
+            EtatSuivi etatActuel = operationEnCours == Operation.Ajouter 
+                ? EtatSuivi.Initial 
+                : (EtatSuivi)commande.IdSuivi;
+
+            if (!transitionsAutorisees.ContainsKey(etatActuel)) return;
 
             // inclut également l'état actuel pour permettre de ne pas changer l'état. Bah oui. Evidemment.
             var etatsAutorises = transitionsAutorisees[etatActuel]
@@ -1790,7 +1805,7 @@ namespace MediaTekDocuments.view
             comboBox.ValueMember = "IdSuivi";
 
             // réinitialise la sélection à l'état actuel de la commande
-            comboBox.SelectedValue = commande.IdSuivi;
+            comboBox.SelectedValue = (int)etatActuel;
         }
 
         #endregion
@@ -1833,6 +1848,7 @@ namespace MediaTekDocuments.view
 
             buttonCommandeLivreValider.Enabled = edition;
             buttonCommandeLivreAnnuler.Enabled = edition;
+            buttonCommandeLivreRechercher.Enabled = !edition;
 
             // Gestion du focus uniquement en mode édition
             if (edition)
@@ -1857,6 +1873,8 @@ namespace MediaTekDocuments.view
             }
             comboBoxCommandeLivreEtat.SelectedIndex = 0;
             SetModeCommandeLivre(operationEnCours);
+
+            FiltrerEtatsSuivisDisponibles(null, comboBoxCommandeLivreEtat, Operation.Ajouter);
         }
 
         private void buttonCommandeLivreModifier_Click(object sender, EventArgs e)
@@ -1878,6 +1896,8 @@ namespace MediaTekDocuments.view
 
             RemplirCommande(commande);
             RemplirDetailsLivre(commande);
+
+            FiltrerEtatsSuivisDisponibles(commande, comboBoxCommandeLivreEtat, operationEnCours);
         }
 
         private void buttonCommandeLivreSupprimer_Click(object sender, EventArgs e)
@@ -2053,29 +2073,30 @@ namespace MediaTekDocuments.view
                 return false;
             }
 
+            EtatSuivi ancienEtat;
+            EtatSuivi nouvelEtat = (EtatSuivi)((int)comboBoxCommandeLivreEtat.SelectedValue);
+
             if (!isNew)
             {
                 var commande = lesCommandesLivres
                     .FirstOrDefault(c => c.Id == textBoxLCommandeLivreNumero.Text);
 
-                EtatSuivi nouvelEtat = (EtatSuivi)((int)comboBoxCommandeLivreEtat.SelectedValue);
-                EtatSuivi ancienIdSuivi = (EtatSuivi)commande.IdSuivi;
+                // IdSuivi peut être casté car il correspond aux valeurs dans l'enum (ex: IdSuivi = 1 -> EnCours)
+                ancienEtat = (EtatSuivi)commande.IdSuivi;
 
-                var transitionValide =
-                    ancienIdSuivi == nouvelEtat 
-                    || transitionsAutorisees.ContainsKey(ancienIdSuivi) 
-                    && transitionsAutorisees[ancienIdSuivi].Contains(nouvelEtat);
+            } else { ancienEtat = EtatSuivi.Initial; }
 
-                if (!transitionValide)
-                {
-                    messageErreur = $"Transition d'état invalide : {ancienIdSuivi} -> {nouvelEtat}";
-                    return false;
-                }
+            if (!IsTransitionValide(ancienEtat, nouvelEtat))
+            {
+                messageErreur = $"Transition d'état invalide : {ancienEtat} -> {nouvelEtat}";
+                return false;
             }
 
             messageErreur = null;
             return true;
         }
+
+        
 
         private void RemplirCommandesLivreListe(List<CommandeDocument> commandesDocument)
         {
@@ -2210,7 +2231,10 @@ namespace MediaTekDocuments.view
 
             RemplirCommande(commande);
             RemplirDetailsLivre(commande);
-            FiltrerEtatsSuivisDisponibles(commande, comboBoxCommandeLivreEtat);
+            if (operationEnCours != Operation.Ajouter)
+            {
+                FiltrerEtatsSuivisDisponibles(commande, comboBoxCommandeLivreEtat, operationEnCours);
+            }
         }
 
         private void buttonCommandeLivreRechercher_Click(object sender, EventArgs e)
@@ -2328,6 +2352,7 @@ namespace MediaTekDocuments.view
 
             buttonCommandeDvdValider.Enabled = edition;
             buttonCommandeDvdAnnuler.Enabled = edition;
+            buttonCommandeDvdRechercher.Enabled = !edition;
 
             // Gestion du focus uniquement en mode édition
             if (edition)
@@ -2352,6 +2377,8 @@ namespace MediaTekDocuments.view
             }
             comboBoxCommandeDvdEtat.SelectedIndex = 0;
             SetModeCommandeDvd(operationEnCours);
+
+            FiltrerEtatsSuivisDisponibles(null, comboBoxCommandeDvdEtat, Operation.Ajouter);
         }
 
         private void buttonCommandeDvdModifier_Click(object sender, EventArgs e)
@@ -2373,6 +2400,8 @@ namespace MediaTekDocuments.view
 
             RemplirCommandeDvd(commande);
             RemplirDetailsDvd(commande);
+
+            FiltrerEtatsSuivisDisponibles(commande, comboBoxCommandeDvdEtat, Operation.Modifier);
         }
 
         private void buttonCommandeDvdSupprimer_Click(object sender, EventArgs e)
@@ -2683,7 +2712,10 @@ namespace MediaTekDocuments.view
 
             RemplirCommandeDvd(commande);
             RemplirDetailsDvd(commande);
-            FiltrerEtatsSuivisDisponibles(commande, comboBoxCommandeDvdEtat);
+            if (operationEnCours != Operation.Ajouter)
+            {
+                FiltrerEtatsSuivisDisponibles(commande, comboBoxCommandeDvdEtat, operationEnCours);
+            }
         }
 
         private void buttonCommandeDvdRechercher_Click(object sender, EventArgs e)
