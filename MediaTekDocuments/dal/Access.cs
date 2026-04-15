@@ -11,6 +11,7 @@ using System.Configuration;
 using System.Diagnostics;
 using System.Linq;
 using System.Net;
+using System.Xml.Linq;
 using static MediaTekDocuments.view.FrmMediatek;
 
 namespace MediaTekDocuments.dal
@@ -386,17 +387,20 @@ namespace MediaTekDocuments.dal
         public List<CommandeDocument> GetAllCommandesDocuments(TypeMedia type)
         {
             string endpoint;
+            string leType = type.ToString().ToLower();
+
             switch (type)
             {
                 case TypeMedia.Livre:
                 case TypeMedia.Dvd:
-                    endpoint = "commandedocument"; // pour tester
+                    endpoint = "commandedocument/"; // pour tester
                     break;
                 default:
                     throw new ArgumentException("TypeMedia invalide");
             }
-
-            return TraitementRecup<CommandeDocument>(GET, endpoint, null);
+            String jsonType = convertToJson("typemedia", type.ToString().ToLower());
+            Debug.WriteLine(jsonType);
+            return TraitementRecup<CommandeDocument>(GET, endpoint + jsonType, null);
         }
 
         public bool AjouterCommande(Commande commande)

@@ -1749,31 +1749,48 @@ namespace MediaTekDocuments.view
             { EtatSuivi.Reglee, new List<EtatSuivi>() }
         };
 
-        private bool CreerCommande(TypeMedia type, bool isNew)
+        private void ChargerSuivis()
         {
-            // validation des champs obligatoires
-            if (!ValiderChampsCommandeDocument(isNew, out string erreur))
-            {
-                MessageBox.Show(erreur);
-                return false;
-            }
+            var lesSuivis = controller.GetAllSuivis();
 
-            // construction du command
-            var cmd = new CreerCommandeCommand
-            {
-                Type = type,
-                Id = textBoxLCommandeLivreNumero.Text,
-                DateCommande = dateTimePickerCommandeLivreDate.Value,
-                NbExemplaire = int.Parse(textBoxCommandeLivreNbExemplaires.Text),
-                Montant = double.Parse(textBoxCommandeLivreMontant.Text),
-                IdLivreDvd = textBoxLivreNumeroDansCommande.Text,
-                IdSuivi = (int)comboBoxCommandeLivreEtat.SelectedValue
-            };
+            comboBoxCommandeLivreEtat.DataSource = lesSuivis;
+            comboBoxCommandeLivreEtat.DisplayMember = "LibelleEtat";
+            comboBoxCommandeLivreEtat.ValueMember = "IdSuivi";
 
-            Debug.WriteLine($"controller.SauvegarderCommande, isNew : {isNew} - Id : {cmd.Id}, Livre/Dvd : {cmd.IdLivreDvd}, NbExemplaires : {cmd.NbExemplaire}, Montant : {cmd.Montant}, Date : {cmd.DateCommande}, IdSuivi : {cmd.IdSuivi}");
-            // envoi
-            bool succes = controller.SauvegarderCommande(cmd, isNew);
-            return succes;
+            comboBoxCommandeDvdEtat.DataSource = lesSuivis;
+            comboBoxCommandeDvdEtat.DisplayMember = "LibelleEtat";
+            comboBoxCommandeDvdEtat.ValueMember = "IdSuivi";
+        }
+
+
+        private void FiltrerEtatsSuivisDisponibles(CommandeDocument commande, ComboBox comboBox)
+        {
+            if (commande == null) return;
+            if (!transitionsAutorisees.ContainsKey((EtatSuivi)commande.IdSuivi))
+                return;
+
+            var etatActuel = (EtatSuivi)commande.IdSuivi;
+
+            // inclut également l'état actuel pour permettre de ne pas changer l'état. Bah oui. Evidemment.
+            var etatsAutorises = transitionsAutorisees[etatActuel]
+                .Append(etatActuel)
+                .ToList();
+
+            var tousLesSuivis = controller.GetAllSuivis();
+            if (tousLesSuivis == null) return;
+            comboBox.DataSource = null;
+
+            // filtre les suivis pour n'afficher que ceux autorisés pour la transition (LINQ)
+            var suivisFiltres = tousLesSuivis
+                .Where(s => etatsAutorises.Contains((EtatSuivi)s.IdSuivi))
+                .ToList();
+
+            comboBox.DataSource = suivisFiltres;
+            comboBox.DisplayMember = "LibelleEtat";
+            comboBox.ValueMember = "IdSuivi";
+
+            // réinitialise la sélection à l'état actuel de la commande
+            comboBox.SelectedValue = commande.IdSuivi;
         }
 
         #endregion
@@ -1935,7 +1952,30 @@ namespace MediaTekDocuments.view
             bool isNew = operationEnCours == Operation.Ajouter;
             string idCommande = textBoxLCommandeLivreNumero.Text;
 
-            bool success = CreerCommande(TypeMedia.Livre, isNew);
+            string messageErreur;
+            if (!ValiderChampsCommandeLivre(isNew, out messageErreur))
+            {
+                MessageBox.Show(messageErreur);
+                return;
+            }
+
+            // construction du command
+            var cmd = new CreerCommandeCommand
+            {
+                Type = TypeMedia.Livre,
+                Id = textBoxLCommandeLivreNumero.Text,
+                DateCommande = dateTimePickerCommandeLivreDate.Value,
+                NbExemplaire = int.Parse(textBoxCommandeLivreNbExemplaires.Text),
+                Montant = double.Parse(textBoxCommandeLivreMontant.Text),
+                IdLivreDvd = textBoxLivreNumeroDansCommande.Text,
+                IdSuivi = (int)comboBoxCommandeLivreEtat.SelectedValue
+            };
+
+            Debug.WriteLine(
+                $"controller.SauvegarderCommande, isNew : {isNew} - Id : {cmd.Id}, Livre/Dvd : {cmd.IdLivreDvd}, NbExemplaires : {cmd.NbExemplaire}, Montant : {cmd.Montant}, Date : {cmd.DateCommande}, IdSuivi : {cmd.IdSuivi}"
+            );
+
+            bool success = controller.SauvegarderCommande(cmd, isNew);
 
             if (success)
             {
@@ -1968,7 +2008,7 @@ namespace MediaTekDocuments.view
         /// <param name="isNew">Indique si la commande est nouvelle ou s'il s'agit d'une modification existante</param>
         /// <param name="messageErreur">Contient le message d'erreur descriptif si la validation échoue</param>
         /// <returns>true si tous les champs de la commande sont valides</returns>
-        private bool ValiderChampsCommandeDocument(bool isNew, out string messageErreur)
+        private bool ValiderChampsCommandeLivre(bool isNew, out string messageErreur)
         {
             // Numéro de commande obligatoire si modification
             if (!isNew && string.IsNullOrWhiteSpace(textBoxLCommandeLivreNumero.Text))
@@ -2035,15 +2075,6 @@ namespace MediaTekDocuments.view
 
             messageErreur = null;
             return true;
-        }
-
-        private void ChargerSuivis()
-        {
-            var lesSuivis = controller.GetAllSuivis();
-
-            comboBoxCommandeLivreEtat.DataSource = lesSuivis;
-            comboBoxCommandeLivreEtat.DisplayMember = "LibelleEtat";
-            comboBoxCommandeLivreEtat.ValueMember = "IdSuivi";
         }
 
         private void RemplirCommandesLivreListe(List<CommandeDocument> commandesDocument)
@@ -2129,7 +2160,6 @@ namespace MediaTekDocuments.view
             }
         }
 
-
         private void ViderDetailsLivre()
         {
             textBoxLivreNumero.Text = "";
@@ -2180,37 +2210,7 @@ namespace MediaTekDocuments.view
 
             RemplirCommande(commande);
             RemplirDetailsLivre(commande);
-            FiltrerEtatsSuivisDisponibles(commande);
-        }
-
-        private void FiltrerEtatsSuivisDisponibles(CommandeDocument commande)
-        {
-            if (commande == null) return;
-            if (!transitionsAutorisees.ContainsKey((EtatSuivi)commande.IdSuivi))
-                return;
-
-            var etatActuel = (EtatSuivi)commande.IdSuivi;
-
-            // inclut également l'état actuel pour permettre de ne pas changer l'état. Bah oui. Evidemment.
-            var etatsAutorises = transitionsAutorisees[etatActuel]
-                .Append(etatActuel)
-                .ToList();
-
-            var tousLesSuivis = controller.GetAllSuivis();
-            if (tousLesSuivis == null) return;
-            comboBoxCommandeLivreEtat.DataSource = null;
-
-            // filtre les suivis pour n'afficher que ceux autorisés pour la transition (LINQ)
-            var suivisFiltres = tousLesSuivis
-                .Where(s => etatsAutorises.Contains((EtatSuivi)s.IdSuivi))
-                .ToList();
-
-            comboBoxCommandeLivreEtat.DataSource = suivisFiltres;
-            comboBoxCommandeLivreEtat.DisplayMember = "LibelleEtat";
-            comboBoxCommandeLivreEtat.ValueMember = "IdSuivi";
-
-            // réinitialise la sélection à l'état actuel de la commande
-            comboBoxCommandeLivreEtat.SelectedValue = commande.IdSuivi;
+            FiltrerEtatsSuivisDisponibles(commande, comboBoxCommandeLivreEtat);
         }
 
         private void buttonCommandeLivreRechercher_Click(object sender, EventArgs e)
@@ -2286,6 +2286,480 @@ namespace MediaTekDocuments.view
                     break;
             }
             RemplirCommandesLivreListe(sortedList);
+        }
+
+        #endregion
+
+        #region OngletCommandesDvds
+
+        private readonly BindingSource bdgCommandeDvdsListe = new BindingSource();
+        private List<CommandeDocument> lesCommandesDvds = new List<CommandeDocument>();
+
+        private void tabCommandeDvd_Enter(object sender, EventArgs e)
+        {
+            lesCommandesDvds = controller.GetAllCommandesDocuments(TypeMedia.Dvd);
+            RemplirCommandesDvdListe(lesCommandesDvds);
+            ChargerSuivis();
+        }
+
+        private void SetModeCommandeDvd(Operation operation)
+        {
+            bool edition = operation == Operation.Ajouter || operation == Operation.Modifier;
+
+            dataGridViewCommandeDvdsListe.Enabled = !edition;
+
+            // Champs éditables
+            dateTimePickerCommandeDvdDate.Enabled = edition;
+            textBoxCommandeDvdMontant.ReadOnly = !edition;
+            textBoxCommandeDvdNbExemplaires.ReadOnly = !edition;
+            comboBoxCommandeDvdEtat.Enabled = edition;
+            textBoxCommandeDvdRecherche.Enabled = !edition;
+
+            // Modifiable uniquement à la création
+            textBoxDvdNumeroDansCommande.ReadOnly = operation != Operation.Ajouter;
+
+            // ID protégé
+            textBoxLCommandeDvdNumero.ReadOnly = true;
+
+            // Boutons
+            buttonCommandeDvdAjouter.Enabled = !edition;
+            buttonCommandeDvdModifier.Enabled = !edition;
+            buttonCommandeDvdSupprimer.Enabled = !edition;
+
+            buttonCommandeDvdValider.Enabled = edition;
+            buttonCommandeDvdAnnuler.Enabled = edition;
+
+            // Gestion du focus uniquement en mode édition
+            if (edition)
+            {
+                Control focusControl = operation == Operation.Ajouter
+                    ? textBoxDvdNumeroDansCommande
+                    : textBoxCommandeDvdMontant;
+
+                focusControl.Focus();
+            }
+        }
+
+        private void buttonCommandeDvdAjouter_Click(object sender, EventArgs e)
+        {
+            operationEnCours = Operation.Ajouter;
+
+            ViderCommandeDvd();
+            if (textBoxCommandeDvdRecherche.Text != "")
+            {
+                textBoxDvdNumeroDansCommande.Text = textBoxCommandeDvdRecherche.Text.Trim();
+                textBoxCommandeDvdRecherche.Text = "";
+            }
+            comboBoxCommandeDvdEtat.SelectedIndex = 0;
+            SetModeCommandeDvd(operationEnCours);
+        }
+
+        private void buttonCommandeDvdModifier_Click(object sender, EventArgs e)
+        {
+            if (bdgCommandeDvdsListe.Count == 0)
+            {
+                MessageBox.Show("Aucune commande disponible.");
+                return;
+            }
+
+            if (!(bdgCommandeDvdsListe.Current is CommandeDocument commande))
+            {
+                MessageBox.Show("Veuillez sélectionner une commande à modifier.", "Information", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                return;
+            }
+
+            operationEnCours = Operation.Modifier;
+            SetModeCommandeDvd(operationEnCours);
+
+            RemplirCommandeDvd(commande);
+            RemplirDetailsDvd(commande);
+        }
+
+        private void buttonCommandeDvdSupprimer_Click(object sender, EventArgs e)
+        {
+            if (bdgCommandeDvdsListe.Count == 0)
+            {
+                MessageBox.Show("Aucune commande disponible.");
+                return;
+            }
+
+            if (!(bdgCommandeDvdsListe.Current is CommandeDocument commande))
+            {
+                MessageBox.Show("Veuillez sélectionner une commande à supprimer.", "Information", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                return;
+            }
+
+            operationEnCours = Operation.Supprimer;
+
+            var result = MessageBox.Show(
+                $"Supprimer la commande numéro '{commande.IdDocument}' ?",
+                "Confirmation",
+                MessageBoxButtons.YesNo,
+                MessageBoxIcon.Warning);
+
+            if (result == DialogResult.Yes)
+            {
+                bool success = controller.SupprimerCommande(TypeMedia.Dvd, commande.Id);
+                if (success)
+                {
+                    MessageBox.Show("Commande supprimée");
+                    lesCommandesDvds = controller.GetAllCommandesDocuments(TypeMedia.Dvd);
+                    RemplirCommandesDvdListe(lesCommandesDvds);
+                    ViderDetailsDvd();
+                }
+                else
+                {
+                    MessageBox.Show("Erreur lors de la suppression");
+                }
+            }
+
+            operationEnCours = Operation.None;
+            tabCommandeDvd_Enter(null, null);
+        }
+
+        private void buttonCommandeDvdAnnuler_Click(object sender, EventArgs e)
+        {
+            operationEnCours = Operation.None;
+            SetModeCommandeDvd(Operation.None);
+            tabCommandeDvd_Enter(null, null);
+
+            if (lesCommandesDvds.Any())
+            {
+                bdgCommandeDvdsListe.Position = 0;
+            }
+        }
+
+        private void buttonCommandeDvdValider_Click(object sender, EventArgs e)
+        {
+            if (operationEnCours != Operation.Ajouter && operationEnCours != Operation.Modifier)
+            {
+                MessageBox.Show("Aucune opération en cours.", "Erreur", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            bool isNew = operationEnCours == Operation.Ajouter;
+            string idCommande = textBoxLCommandeDvdNumero.Text;
+
+            string messageErreur;
+            if (!ValiderChampsCommandeDvd(isNew, out messageErreur))
+            {
+                MessageBox.Show(messageErreur);
+                return;
+            }
+
+            // construction du command
+            var cmd = new CreerCommandeCommand
+            {
+                Type = TypeMedia.Dvd,
+                Id = textBoxLCommandeDvdNumero.Text,
+                DateCommande = dateTimePickerCommandeDvdDate.Value,
+                NbExemplaire = int.Parse(textBoxCommandeDvdNbExemplaires.Text),
+                Montant = double.Parse(textBoxCommandeDvdMontant.Text),
+                IdLivreDvd = textBoxDvdNumeroDansCommande.Text,
+                IdSuivi = (int)comboBoxCommandeDvdEtat.SelectedValue
+            };
+
+            Debug.WriteLine(
+                $"controller.SauvegarderCommande, isNew : {isNew} - Id : {cmd.Id}, Livre/Dvd : {cmd.IdLivreDvd}, NbExemplaires : {cmd.NbExemplaire}, Montant : {cmd.Montant}, Date : {cmd.DateCommande}, IdSuivi : {cmd.IdSuivi}"
+            );
+
+            bool success = controller.SauvegarderCommande(cmd, isNew);
+
+            if (success)
+            {
+                MessageBox.Show(isNew ? "Commande créée" : "Commande modifiée");
+
+                operationEnCours = Operation.None;
+                SetModeCommandeDvd(Operation.None);
+
+                lesCommandesDvds = controller.GetAllCommandesDocuments(TypeMedia.Dvd);
+                RemplirCommandesDvdListe(lesCommandesDvds);
+
+                var updated = lesCommandesDvds.FirstOrDefault(c => c.Id == idCommande);
+                if (updated != null)
+                {
+                    bdgCommandeDvdsListe.Position = lesCommandesDvds.IndexOf(updated);
+                }
+            }
+            else
+            {
+                MessageBox.Show("Erreur lors de l'enregistrement");
+            }
+        }
+
+        private bool ValiderChampsCommandeDvd(bool isNew, out string messageErreur)
+        {
+            if (!isNew && string.IsNullOrWhiteSpace(textBoxLCommandeDvdNumero.Text))
+            {
+                messageErreur = "Numéro de commande obligatoire";
+                return false;
+            }
+
+            if (string.IsNullOrWhiteSpace(textBoxDvdNumeroDansCommande.Text))
+            {
+                messageErreur = "Document obligatoire";
+                return false;
+            }
+
+            var dvd = lesDvd.FirstOrDefault(d => d.Id == textBoxDvdNumeroDansCommande.Text);
+            if (dvd == null)
+            {
+                messageErreur = "Ce DVD n'existe pas.";
+                return false;
+            }
+
+            if (!int.TryParse(textBoxCommandeDvdNbExemplaires.Text, out int nbExemplaires) || nbExemplaires <= 0)
+            {
+                messageErreur = "Nombre d'exemplaires invalide";
+                return false;
+            }
+
+            if (!double.TryParse(textBoxCommandeDvdMontant.Text, out double montant) || montant < 0)
+            {
+                messageErreur = "Montant invalide";
+                return false;
+            }
+
+            if (comboBoxCommandeDvdEtat.SelectedValue == null)
+            {
+                messageErreur = "État obligatoire";
+                return false;
+            }
+
+            if (!isNew)
+            {
+                var commande = lesCommandesDvds
+                    .FirstOrDefault(c => c.Id == textBoxLCommandeDvdNumero.Text);
+
+                EtatSuivi nouvelEtat = (EtatSuivi)((int)comboBoxCommandeDvdEtat.SelectedValue);
+                EtatSuivi ancienIdSuivi = (EtatSuivi)commande.IdSuivi;
+
+                var transitionValide =
+                    ancienIdSuivi == nouvelEtat
+                    || transitionsAutorisees.ContainsKey(ancienIdSuivi)
+                    && transitionsAutorisees[ancienIdSuivi].Contains(nouvelEtat);
+
+                if (!transitionValide)
+                {
+                    messageErreur = $"Transition d'état invalide : {ancienIdSuivi} -> {nouvelEtat}";
+                    return false;
+                }
+            }
+
+            messageErreur = null;
+            return true;
+        }
+
+        private void RemplirCommandesDvdListe(List<CommandeDocument> commandesDocument)
+        {
+            bdgCommandeDvdsListe.DataSource = commandesDocument;
+
+            dataGridViewCommandeDvdsListe.AutoGenerateColumns = false;
+            dataGridViewCommandeDvdsListe.DataSource = bdgCommandeDvdsListe;
+            dataGridViewCommandeDvdsListe.Columns.Clear();
+
+            dataGridViewCommandeDvdsListe.Columns.Add(new DataGridViewTextBoxColumn
+            {
+                HeaderText = "Id",
+                DataPropertyName = "Id"
+            });
+
+            dataGridViewCommandeDvdsListe.Columns.Add(new DataGridViewTextBoxColumn
+            {
+                HeaderText = "Id Document",
+                DataPropertyName = "IdDocument"
+            });
+
+            dataGridViewCommandeDvdsListe.Columns.Add(new DataGridViewTextBoxColumn
+            {
+                HeaderText = "Exemplaires",
+                DataPropertyName = "NbExemplaire"
+            });
+
+            dataGridViewCommandeDvdsListe.Columns.Add(new DataGridViewTextBoxColumn
+            {
+                HeaderText = "Etat",
+                DataPropertyName = "LibelleSuivi"
+            });
+
+            dataGridViewCommandeDvdsListe.Columns.Add(new DataGridViewTextBoxColumn
+            {
+                HeaderText = "Date",
+                DataPropertyName = "DateCommande"
+            });
+
+            dataGridViewCommandeDvdsListe.Columns.Add(new DataGridViewTextBoxColumn
+            {
+                HeaderText = "Montant",
+                DataPropertyName = "Montant"
+            });
+
+            dataGridViewCommandeDvdsListe.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.AllCells;
+            dataGridViewCommandeDvdsListe.AutoResizeColumns();
+        }
+
+        private void RemplirDetailsDvd(CommandeDocument commande)
+        {
+            if (!lesDvd.Any())
+            {
+                lesDvd = controller.GetAllDvd();
+            }
+
+            var dvd = lesDvd.FirstOrDefault(d => d.Id == commande.IdLivreDvd);
+
+            if (dvd != null)
+            {
+                RemplirDetailsDvdDepuisDocument(dvd);
+            }
+            else
+            {
+                ViderDetailsDvd();
+            }
+        }
+
+        private void RemplirDetailsDvdDepuisDocument(Document document)
+        {
+            if (document is Dvd dvd)
+            {
+                textBoxDvdNumero.Text = dvd.Id;
+                textBoxDvdDuree.Text = dvd.Duree.ToString();
+                textBoxDvdTitre.Text = dvd.Titre;
+                textBoxDvdRealisateur.Text = dvd.Realisateur;
+                textBoxDvdSynopsis.Text = dvd.Synopsis;
+                textBoxDvdGenre.Text = dvd.Genre;
+                textBoxDvdPublic.Text = dvd.Public;
+                textBoxDvdRayon.Text = dvd.Rayon;
+                textBoxDvdImage.Text = dvd.Image;
+            }
+        }
+
+        private void ViderDetailsDvd()
+        {
+            textBoxDvdNumero.Text = "";
+            textBoxDvdDuree.Text = "";
+            textBoxDvdTitre.Text = "";
+            textBoxDvdRealisateur.Text = "";
+            textBoxDvdSynopsis.Text = "";
+            textBoxDvdGenre.Text = "";
+            textBoxDvdPublic.Text = "";
+            textBoxDvdRayon.Text = "";
+            textBoxDvdImage.Text = "";
+        }
+
+        private void RemplirCommandeDvd(CommandeDocument commande)
+        {
+            if (commande == null) return;
+
+            textBoxLCommandeDvdNumero.Text = commande.Id ?? "";
+            dateTimePickerCommandeDvdDate.Value = commande.DateCommande;
+            textBoxCommandeDvdMontant.Text = commande.Montant.ToString("0.00");
+
+            textBoxDvdNumeroDansCommande.Text = commande.IdLivreDvd ?? "";
+            textBoxCommandeDvdNbExemplaires.Text = commande.NbExemplaire.ToString();
+
+            if (commande.IdSuivi != 0)
+            {
+                comboBoxCommandeDvdEtat.SelectedValue = commande.IdSuivi;
+            }
+        }
+
+        private void ViderCommandeDvd()
+        {
+            textBoxLCommandeDvdNumero.Text = "";
+            dateTimePickerCommandeDvdDate.Value = DateTime.Now;
+            textBoxCommandeDvdMontant.Text = "";
+            textBoxDvdNumeroDansCommande.Text = "";
+            textBoxCommandeDvdNbExemplaires.Text = "";
+            comboBoxCommandeDvdEtat.SelectedIndex = -1;
+        }
+
+        private void dataGridViewCommandeDvdsListe_SelectionChanged(object sender, EventArgs e)
+        {
+            if (!(bdgCommandeDvdsListe.Current is CommandeDocument commande))
+            {
+                ViderDetailsDvd();
+                return;
+            }
+
+            RemplirCommandeDvd(commande);
+            RemplirDetailsDvd(commande);
+            FiltrerEtatsSuivisDisponibles(commande, comboBoxCommandeDvdEtat);
+        }
+
+        private void buttonCommandeDvdRechercher_Click(object sender, EventArgs e)
+        {
+            var input = textBoxCommandeDvdRecherche.Text.Trim();
+            if (string.IsNullOrEmpty(input))
+            {
+                RemplirCommandesDvdListe(lesCommandesDvds);
+                ViderDetailsDvd();
+                return;
+            }
+
+            var commandesFiltrees = lesCommandesDvds
+                .Where(c => c.IdDocument == input)
+                .ToList();
+
+            if (commandesFiltrees.Any())
+            {
+                RemplirCommandesDvdListe(commandesFiltrees);
+                return;
+            }
+
+            if (!lesDvd.Any())
+            {
+                lesDvd = controller.GetAllDvd();
+            }
+
+            var dvd = lesDvd.FirstOrDefault(d => d.Id == input);
+
+            if (dvd != null)
+            {
+                dataGridViewCommandeDvdsListe.ClearSelection();
+                dataGridViewCommandeDvdsListe.CurrentCell = null;
+
+                RemplirDetailsDvdDepuisDocument(dvd);
+            }
+            else
+            {
+                MessageBox.Show("Aucun DVD trouvé", "Information",
+                    MessageBoxButtons.OK, MessageBoxIcon.Information);
+
+                RemplirCommandesDvdListe(lesCommandesDvds);
+                ViderDetailsDvd();
+            }
+        }
+
+
+
+        private void dataGridViewCommandeDvdsListe_ColumnHeaderMouseClick(object sender, DataGridViewCellMouseEventArgs e)
+        {
+            string titreColonne = dataGridViewCommandeDvdsListe.Columns[e.ColumnIndex].HeaderText;
+            List<CommandeDocument> sortedList = new List<CommandeDocument>();
+
+            switch (titreColonne)
+            {
+                case "Id":
+                    sortedList = lesCommandesDvds.OrderBy(o => o.Id).ToList();
+                    break;
+                case "Id Document":
+                    sortedList = lesCommandesDvds.OrderBy(o => o.IdDocument).ToList();
+                    break;
+                case "Exemplaires":
+                    sortedList = lesCommandesDvds.OrderBy(o => o.NbExemplaire).ToList();
+                    break;
+                case "Etat":
+                    sortedList = lesCommandesDvds.OrderBy(o => o.LibelleSuivi).ToList();
+                    break;
+                case "Date":
+                    sortedList = lesCommandesDvds.OrderBy(o => o.DateCommande).ToList();
+                    break;
+                case "Montant":
+                    sortedList = lesCommandesDvds.OrderBy(o => o.Montant).ToList();
+                    break;
+            }
+
+            RemplirCommandesDvdListe(sortedList);
         }
 
         #endregion
