@@ -458,5 +458,51 @@ namespace MediaTekDocuments.dal
         }
 
         #endregion
+
+        #region abonnements
+
+        public List<Abonnement> GetAllAbonnements()
+        {
+            return TraitementRecup<Abonnement>(GET, "abonnement", null);
+        }
+
+        public List<AlerteAbonnement> getAbonnementsExpirantDans(int jours)
+        {
+            String jsonJours = convertToJson("jours", jours);
+            Debug.WriteLine(jsonJours);
+            return TraitementRecup<AlerteAbonnement>(GET, "abonnements_expirant_dans/" + jsonJours, null);
+        }
+
+        public bool AjouterAbonnement(Abonnement abonnement)
+        {
+            string json = JsonConvert.SerializeObject(abonnement, new CustomDateTimeConverter());
+            try
+            {
+                return ExecuteCommande(POST, "abonnement", "champs=" + json);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+                return false;
+            }
+        }
+
+        public bool SupprimerAbonnement(Abonnement abonnement)
+        {
+            string json = JsonConvert.SerializeObject(new { id = abonnement.Id });
+            string encodedJson = Uri.EscapeDataString(json);
+            string endpoint = $"abonnement/{encodedJson}";
+            try
+            {
+                return ExecuteCommande(DELETE, endpoint, null);
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine(ex.Message);
+                return false;
+            }
+        }
+
+        #endregion
     }
 }

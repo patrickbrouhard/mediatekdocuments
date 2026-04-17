@@ -19,5 +19,9 @@ namespace MediaTekDocuments.commands
         public int NbExemplaire { get; set; }
         public string IdLivreDvd { get; set; }
         public int IdSuivi { get; set; }
+
+        // Revues (Abonnements)
+        public DateTime DateFinAbonnement { get; set; }
+        public string IdRevue { get; set; }
     }
 }

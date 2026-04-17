@@ -20,7 +20,14 @@ namespace MediaTekDocuments.model
                         cmd.IdLivreDvd,
                         cmd.IdSuivi
                     );
-
+                case TypeMedia.Revue:
+                    return new Abonnement(
+                        cmd.Id,
+                        cmd.DateCommande,
+                        cmd.Montant,
+                        cmd.DateFinAbonnement,
+                        cmd.IdRevue
+                    );
                 default:
                     throw new ArgumentException("Type de média non supporté");
             } 

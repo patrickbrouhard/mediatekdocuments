@@ -1,8 +1,10 @@
 ﻿using MediaTekDocuments.commands;
 using MediaTekDocuments.dal;
 using MediaTekDocuments.model;
+using MediaTekDocuments.Services;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using static MediaTekDocuments.view.FrmMediatek;
 
 namespace MediaTekDocuments.controller
@@ -16,6 +18,7 @@ namespace MediaTekDocuments.controller
         /// Objet d'accès aux données
         /// </summary>
         private readonly Access access;
+        private readonly AbonnementService abonnementService = new AbonnementService();
 
         /// <summary>
         /// Récupération de l'instance unique d'accès aux données
@@ -141,5 +144,40 @@ namespace MediaTekDocuments.controller
             Commande commande = CommandeFactory.Creer(new CreerCommandeCommand { Type = type, Id = id });
             return access.SupprimerCommande(commande);
         }
+
+        public List<Abonnement> GetAllAbonnements()
+        {
+            return access.GetAllAbonnements();
+        }
+
+        public List<AlerteAbonnement> GetAbonnementsArrivantAExpiration()
+        {
+            return access.getAbonnementsExpirantDans(30);
+        }
+
+        public bool AJouterAbonnement(Abonnement abonnement)
+        {
+            return access.AjouterAbonnement(abonnement);
+        }
+
+        public bool SupprimerAbonnement(Abonnement abonnement)
+        {
+            return access.SupprimerAbonnement(abonnement);
+        }
+
+        public bool PeutSupprimerAbonnement(Abonnement abonnement)
+        {
+            var exemplaires = GetExemplairesRevue(abonnement.IdRevue);
+            return abonnementService.PeutSupprimerAbonnement(
+                abonnement,
+                exemplaires
+            );
+        }
+
+        //public bool RenouvelerAbonnement(Abonnement abonnement, int mois)
+        //{
+        //    abonnement.DateFinAbonnement = abonnement.DateFinAbonnement?.AddMonths(mois);
+        //    return access.ModifierCommande(abonnement);
+        //}
     }
 }
