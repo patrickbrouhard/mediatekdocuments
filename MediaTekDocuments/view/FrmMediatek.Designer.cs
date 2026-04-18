@@ -279,6 +279,44 @@ namespace MediaTekDocuments.view
             this.label91 = new System.Windows.Forms.Label();
             this.textBoxCommandeDvdRecherche = new System.Windows.Forms.TextBox();
             this.dataGridViewCommandeDvdsListe = new System.Windows.Forms.DataGridView();
+            this.tabCommandeRevue = new System.Windows.Forms.TabPage();
+            this.groupBox7 = new System.Windows.Forms.GroupBox();
+            this.label93 = new System.Windows.Forms.Label();
+            this.dateTimePickerAbonnementFin = new System.Windows.Forms.DateTimePicker();
+            this.textBoxRevueNumeroDansCommande = new System.Windows.Forms.TextBox();
+            this.label92 = new System.Windows.Forms.Label();
+            this.label95 = new System.Windows.Forms.Label();
+            this.label96 = new System.Windows.Forms.Label();
+            this.label97 = new System.Windows.Forms.Label();
+            this.buttonCommandeRevueAnnuler = new System.Windows.Forms.Button();
+            this.buttonCommandeRevueValider = new System.Windows.Forms.Button();
+            this.textBoxCommandeRevueMontant = new System.Windows.Forms.TextBox();
+            this.dateTimePickerCommandeRevueDate = new System.Windows.Forms.DateTimePicker();
+            this.textBoxLCommandeRevueNumero = new System.Windows.Forms.TextBox();
+            this.groupBoxRevueInfos = new System.Windows.Forms.GroupBox();
+            this.label103 = new System.Windows.Forms.Label();
+            this.textBoxRevuePeriodicite = new System.Windows.Forms.TextBox();
+            this.textBoxRevueImage = new System.Windows.Forms.TextBox();
+            this.textBoxRevueRayon = new System.Windows.Forms.TextBox();
+            this.textBoxRevuePublic = new System.Windows.Forms.TextBox();
+            this.textBoxRevueGenre = new System.Windows.Forms.TextBox();
+            this.textBoxRevueDateMiseADispo = new System.Windows.Forms.TextBox();
+            this.textBoxRevueTitre = new System.Windows.Forms.TextBox();
+            this.textBoxRevueNumero = new System.Windows.Forms.TextBox();
+            this.label98 = new System.Windows.Forms.Label();
+            this.label99 = new System.Windows.Forms.Label();
+            this.label100 = new System.Windows.Forms.Label();
+            this.label101 = new System.Windows.Forms.Label();
+            this.label102 = new System.Windows.Forms.Label();
+            this.label104 = new System.Windows.Forms.Label();
+            this.label106 = new System.Windows.Forms.Label();
+            this.groupBox9 = new System.Windows.Forms.GroupBox();
+            this.buttonAbonnementSupprimer = new System.Windows.Forms.Button();
+            this.buttonAbonnementAjouter = new System.Windows.Forms.Button();
+            this.buttonAbonnementRechercher = new System.Windows.Forms.Button();
+            this.label107 = new System.Windows.Forms.Label();
+            this.textBoxAbonnementRecherche = new System.Windows.Forms.TextBox();
+            this.dataGridViewAbonnementsListe = new System.Windows.Forms.DataGridView();
             this.tabOngletsApplication.SuspendLayout();
             this.tabLivres.SuspendLayout();
             this.grpLivresInfos.SuspendLayout();
@@ -312,6 +350,11 @@ namespace MediaTekDocuments.view
             this.groupBox5.SuspendLayout();
             this.groupBox6.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridViewCommandeDvdsListe)).BeginInit();
+            this.tabCommandeRevue.SuspendLayout();
+            this.groupBox7.SuspendLayout();
+            this.groupBoxRevueInfos.SuspendLayout();
+            this.groupBox9.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.dataGridViewAbonnementsListe)).BeginInit();
             this.SuspendLayout();
             // 
             // tabOngletsApplication
@@ -322,6 +365,7 @@ namespace MediaTekDocuments.view
             this.tabOngletsApplication.Controls.Add(this.tabReceptionRevue);
             this.tabOngletsApplication.Controls.Add(this.tabCommandeLivre);
             this.tabOngletsApplication.Controls.Add(this.tabCommandeDvd);
+            this.tabOngletsApplication.Controls.Add(this.tabCommandeRevue);
             this.tabOngletsApplication.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tabOngletsApplication.ItemSize = new System.Drawing.Size(49, 18);
             this.tabOngletsApplication.Location = new System.Drawing.Point(0, 0);
@@ -3237,6 +3281,445 @@ namespace MediaTekDocuments.view
             this.dataGridViewCommandeDvdsListe.ColumnHeaderMouseClick += new System.Windows.Forms.DataGridViewCellMouseEventHandler(this.dataGridViewCommandeDvdsListe_ColumnHeaderMouseClick);
             this.dataGridViewCommandeDvdsListe.SelectionChanged += new System.EventHandler(this.dataGridViewCommandeDvdsListe_SelectionChanged);
             // 
+            // tabCommandeRevue
+            // 
+            this.tabCommandeRevue.Controls.Add(this.groupBox7);
+            this.tabCommandeRevue.Controls.Add(this.groupBoxRevueInfos);
+            this.tabCommandeRevue.Controls.Add(this.groupBox9);
+            this.tabCommandeRevue.Location = new System.Drawing.Point(4, 22);
+            this.tabCommandeRevue.Name = "tabCommandeRevue";
+            this.tabCommandeRevue.Size = new System.Drawing.Size(1316, 988);
+            this.tabCommandeRevue.TabIndex = 7;
+            this.tabCommandeRevue.Text = "Abonnements Revues";
+            this.tabCommandeRevue.UseVisualStyleBackColor = true;
+            this.tabCommandeRevue.Enter += new System.EventHandler(this.tabCommandeRevue_Enter);
+            // 
+            // groupBox7
+            // 
+            this.groupBox7.Controls.Add(this.label93);
+            this.groupBox7.Controls.Add(this.dateTimePickerAbonnementFin);
+            this.groupBox7.Controls.Add(this.textBoxRevueNumeroDansCommande);
+            this.groupBox7.Controls.Add(this.label92);
+            this.groupBox7.Controls.Add(this.label95);
+            this.groupBox7.Controls.Add(this.label96);
+            this.groupBox7.Controls.Add(this.label97);
+            this.groupBox7.Controls.Add(this.buttonCommandeRevueAnnuler);
+            this.groupBox7.Controls.Add(this.buttonCommandeRevueValider);
+            this.groupBox7.Controls.Add(this.textBoxCommandeRevueMontant);
+            this.groupBox7.Controls.Add(this.dateTimePickerCommandeRevueDate);
+            this.groupBox7.Controls.Add(this.textBoxLCommandeRevueNumero);
+            this.groupBox7.Location = new System.Drawing.Point(846, 589);
+            this.groupBox7.Name = "groupBox7";
+            this.groupBox7.Size = new System.Drawing.Size(448, 377);
+            this.groupBox7.TabIndex = 28;
+            this.groupBox7.TabStop = false;
+            this.groupBox7.Text = "Commande";
+            // 
+            // label93
+            // 
+            this.label93.AutoSize = true;
+            this.label93.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label93.Location = new System.Drawing.Point(11, 147);
+            this.label93.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            this.label93.Name = "label93";
+            this.label93.Size = new System.Drawing.Size(114, 20);
+            this.label93.TabIndex = 49;
+            this.label93.Text = "Date de fin :";
+            // 
+            // dateTimePickerAbonnementFin
+            // 
+            this.dateTimePickerAbonnementFin.Enabled = false;
+            this.dateTimePickerAbonnementFin.Format = System.Windows.Forms.DateTimePickerFormat.Short;
+            this.dateTimePickerAbonnementFin.Location = new System.Drawing.Point(282, 147);
+            this.dateTimePickerAbonnementFin.Name = "dateTimePickerAbonnementFin";
+            this.dateTimePickerAbonnementFin.Size = new System.Drawing.Size(148, 26);
+            this.dateTimePickerAbonnementFin.TabIndex = 48;
+            // 
+            // textBoxRevueNumeroDansCommande
+            // 
+            this.textBoxRevueNumeroDansCommande.Location = new System.Drawing.Point(282, 69);
+            this.textBoxRevueNumeroDansCommande.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
+            this.textBoxRevueNumeroDansCommande.Name = "textBoxRevueNumeroDansCommande";
+            this.textBoxRevueNumeroDansCommande.ReadOnly = true;
+            this.textBoxRevueNumeroDansCommande.Size = new System.Drawing.Size(148, 26);
+            this.textBoxRevueNumeroDansCommande.TabIndex = 47;
+            this.textBoxRevueNumeroDansCommande.Tag = "";
+            // 
+            // label92
+            // 
+            this.label92.AutoSize = true;
+            this.label92.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label92.Location = new System.Drawing.Point(11, 69);
+            this.label92.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            this.label92.Name = "label92";
+            this.label92.Size = new System.Drawing.Size(199, 20);
+            this.label92.TabIndex = 46;
+            this.label92.Text = "Numéro de document :";
+            // 
+            // label95
+            // 
+            this.label95.AutoSize = true;
+            this.label95.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label95.Location = new System.Drawing.Point(11, 186);
+            this.label95.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            this.label95.Name = "label95";
+            this.label95.Size = new System.Drawing.Size(88, 20);
+            this.label95.TabIndex = 43;
+            this.label95.Text = "Montant :";
+            // 
+            // label96
+            // 
+            this.label96.AutoSize = true;
+            this.label96.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label96.Location = new System.Drawing.Point(11, 108);
+            this.label96.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            this.label96.Name = "label96";
+            this.label96.Size = new System.Drawing.Size(183, 20);
+            this.label96.TabIndex = 42;
+            this.label96.Text = "Date de commande :";
+            // 
+            // label97
+            // 
+            this.label97.AutoSize = true;
+            this.label97.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label97.Location = new System.Drawing.Point(11, 31);
+            this.label97.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            this.label97.Name = "label97";
+            this.label97.Size = new System.Drawing.Size(208, 20);
+            this.label97.TabIndex = 33;
+            this.label97.Text = "Numéro d\'abonnement :";
+            // 
+            // buttonCommandeRevueAnnuler
+            // 
+            this.buttonCommandeRevueAnnuler.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold);
+            this.buttonCommandeRevueAnnuler.Location = new System.Drawing.Point(136, 300);
+            this.buttonCommandeRevueAnnuler.Name = "buttonCommandeRevueAnnuler";
+            this.buttonCommandeRevueAnnuler.Size = new System.Drawing.Size(144, 34);
+            this.buttonCommandeRevueAnnuler.TabIndex = 35;
+            this.buttonCommandeRevueAnnuler.Text = "Annuler";
+            this.buttonCommandeRevueAnnuler.UseVisualStyleBackColor = true;
+            this.buttonCommandeRevueAnnuler.Click += new System.EventHandler(this.buttonCommandeRevueAnnuler_Click);
+            // 
+            // buttonCommandeRevueValider
+            // 
+            this.buttonCommandeRevueValider.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold);
+            this.buttonCommandeRevueValider.Location = new System.Drawing.Point(286, 300);
+            this.buttonCommandeRevueValider.Name = "buttonCommandeRevueValider";
+            this.buttonCommandeRevueValider.Size = new System.Drawing.Size(144, 34);
+            this.buttonCommandeRevueValider.TabIndex = 34;
+            this.buttonCommandeRevueValider.Text = "Valider";
+            this.buttonCommandeRevueValider.UseVisualStyleBackColor = true;
+            this.buttonCommandeRevueValider.Click += new System.EventHandler(this.buttonCommandeRevueValider_Click);
+            // 
+            // textBoxCommandeRevueMontant
+            // 
+            this.textBoxCommandeRevueMontant.Location = new System.Drawing.Point(282, 186);
+            this.textBoxCommandeRevueMontant.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
+            this.textBoxCommandeRevueMontant.Name = "textBoxCommandeRevueMontant";
+            this.textBoxCommandeRevueMontant.ReadOnly = true;
+            this.textBoxCommandeRevueMontant.Size = new System.Drawing.Size(148, 26);
+            this.textBoxCommandeRevueMontant.TabIndex = 40;
+            this.textBoxCommandeRevueMontant.Tag = "";
+            // 
+            // dateTimePickerCommandeRevueDate
+            // 
+            this.dateTimePickerCommandeRevueDate.Enabled = false;
+            this.dateTimePickerCommandeRevueDate.Format = System.Windows.Forms.DateTimePickerFormat.Short;
+            this.dateTimePickerCommandeRevueDate.Location = new System.Drawing.Point(282, 108);
+            this.dateTimePickerCommandeRevueDate.Name = "dateTimePickerCommandeRevueDate";
+            this.dateTimePickerCommandeRevueDate.Size = new System.Drawing.Size(148, 26);
+            this.dateTimePickerCommandeRevueDate.TabIndex = 37;
+            // 
+            // textBoxLCommandeRevueNumero
+            // 
+            this.textBoxLCommandeRevueNumero.Location = new System.Drawing.Point(282, 31);
+            this.textBoxLCommandeRevueNumero.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
+            this.textBoxLCommandeRevueNumero.Name = "textBoxLCommandeRevueNumero";
+            this.textBoxLCommandeRevueNumero.ReadOnly = true;
+            this.textBoxLCommandeRevueNumero.Size = new System.Drawing.Size(148, 26);
+            this.textBoxLCommandeRevueNumero.TabIndex = 36;
+            this.textBoxLCommandeRevueNumero.Tag = "";
+            // 
+            // groupBoxRevueInfos
+            // 
+            this.groupBoxRevueInfos.Controls.Add(this.label103);
+            this.groupBoxRevueInfos.Controls.Add(this.textBoxRevuePeriodicite);
+            this.groupBoxRevueInfos.Controls.Add(this.textBoxRevueImage);
+            this.groupBoxRevueInfos.Controls.Add(this.textBoxRevueRayon);
+            this.groupBoxRevueInfos.Controls.Add(this.textBoxRevuePublic);
+            this.groupBoxRevueInfos.Controls.Add(this.textBoxRevueGenre);
+            this.groupBoxRevueInfos.Controls.Add(this.textBoxRevueDateMiseADispo);
+            this.groupBoxRevueInfos.Controls.Add(this.textBoxRevueTitre);
+            this.groupBoxRevueInfos.Controls.Add(this.textBoxRevueNumero);
+            this.groupBoxRevueInfos.Controls.Add(this.label98);
+            this.groupBoxRevueInfos.Controls.Add(this.label99);
+            this.groupBoxRevueInfos.Controls.Add(this.label100);
+            this.groupBoxRevueInfos.Controls.Add(this.label101);
+            this.groupBoxRevueInfos.Controls.Add(this.label102);
+            this.groupBoxRevueInfos.Controls.Add(this.label104);
+            this.groupBoxRevueInfos.Controls.Add(this.label106);
+            this.groupBoxRevueInfos.Location = new System.Drawing.Point(16, 589);
+            this.groupBoxRevueInfos.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
+            this.groupBoxRevueInfos.Name = "groupBoxRevueInfos";
+            this.groupBoxRevueInfos.Padding = new System.Windows.Forms.Padding(4, 5, 4, 5);
+            this.groupBoxRevueInfos.Size = new System.Drawing.Size(822, 377);
+            this.groupBoxRevueInfos.TabIndex = 27;
+            this.groupBoxRevueInfos.TabStop = false;
+            this.groupBoxRevueInfos.Text = "Informations détaillées";
+            // 
+            // label103
+            // 
+            this.label103.AutoSize = true;
+            this.label103.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label103.Location = new System.Drawing.Point(9, 147);
+            this.label103.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            this.label103.Name = "label103";
+            this.label103.Size = new System.Drawing.Size(178, 20);
+            this.label103.TabIndex = 33;
+            this.label103.Text = "Délai mise à dispo :";
+            // 
+            // textBoxRevuePeriodicite
+            // 
+            this.textBoxRevuePeriodicite.Location = new System.Drawing.Point(225, 108);
+            this.textBoxRevuePeriodicite.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
+            this.textBoxRevuePeriodicite.Name = "textBoxRevuePeriodicite";
+            this.textBoxRevuePeriodicite.ReadOnly = true;
+            this.textBoxRevuePeriodicite.Size = new System.Drawing.Size(148, 26);
+            this.textBoxRevuePeriodicite.TabIndex = 32;
+            // 
+            // textBoxRevueImage
+            // 
+            this.textBoxRevueImage.Location = new System.Drawing.Point(225, 300);
+            this.textBoxRevueImage.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
+            this.textBoxRevueImage.Name = "textBoxRevueImage";
+            this.textBoxRevueImage.ReadOnly = true;
+            this.textBoxRevueImage.Size = new System.Drawing.Size(584, 26);
+            this.textBoxRevueImage.TabIndex = 31;
+            // 
+            // textBoxRevueRayon
+            // 
+            this.textBoxRevueRayon.Location = new System.Drawing.Point(225, 262);
+            this.textBoxRevueRayon.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
+            this.textBoxRevueRayon.Name = "textBoxRevueRayon";
+            this.textBoxRevueRayon.ReadOnly = true;
+            this.textBoxRevueRayon.Size = new System.Drawing.Size(308, 26);
+            this.textBoxRevueRayon.TabIndex = 30;
+            // 
+            // textBoxRevuePublic
+            // 
+            this.textBoxRevuePublic.Location = new System.Drawing.Point(225, 223);
+            this.textBoxRevuePublic.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
+            this.textBoxRevuePublic.Name = "textBoxRevuePublic";
+            this.textBoxRevuePublic.ReadOnly = true;
+            this.textBoxRevuePublic.Size = new System.Drawing.Size(308, 26);
+            this.textBoxRevuePublic.TabIndex = 29;
+            // 
+            // textBoxRevueGenre
+            // 
+            this.textBoxRevueGenre.Location = new System.Drawing.Point(225, 185);
+            this.textBoxRevueGenre.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
+            this.textBoxRevueGenre.Name = "textBoxRevueGenre";
+            this.textBoxRevueGenre.ReadOnly = true;
+            this.textBoxRevueGenre.Size = new System.Drawing.Size(308, 26);
+            this.textBoxRevueGenre.TabIndex = 28;
+            // 
+            // textBoxRevueDateMiseADispo
+            // 
+            this.textBoxRevueDateMiseADispo.Location = new System.Drawing.Point(225, 147);
+            this.textBoxRevueDateMiseADispo.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
+            this.textBoxRevueDateMiseADispo.Name = "textBoxRevueDateMiseADispo";
+            this.textBoxRevueDateMiseADispo.ReadOnly = true;
+            this.textBoxRevueDateMiseADispo.Size = new System.Drawing.Size(308, 26);
+            this.textBoxRevueDateMiseADispo.TabIndex = 26;
+            // 
+            // textBoxRevueTitre
+            // 
+            this.textBoxRevueTitre.Location = new System.Drawing.Point(225, 69);
+            this.textBoxRevueTitre.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
+            this.textBoxRevueTitre.Name = "textBoxRevueTitre";
+            this.textBoxRevueTitre.ReadOnly = true;
+            this.textBoxRevueTitre.Size = new System.Drawing.Size(584, 26);
+            this.textBoxRevueTitre.TabIndex = 25;
+            // 
+            // textBoxRevueNumero
+            // 
+            this.textBoxRevueNumero.Location = new System.Drawing.Point(225, 31);
+            this.textBoxRevueNumero.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
+            this.textBoxRevueNumero.Name = "textBoxRevueNumero";
+            this.textBoxRevueNumero.ReadOnly = true;
+            this.textBoxRevueNumero.Size = new System.Drawing.Size(148, 26);
+            this.textBoxRevueNumero.TabIndex = 24;
+            this.textBoxRevueNumero.Tag = "";
+            // 
+            // label98
+            // 
+            this.label98.AutoSize = true;
+            this.label98.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label98.Location = new System.Drawing.Point(9, 185);
+            this.label98.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            this.label98.Name = "label98";
+            this.label98.Size = new System.Drawing.Size(72, 20);
+            this.label98.TabIndex = 22;
+            this.label98.Text = "Genre :";
+            // 
+            // label99
+            // 
+            this.label99.AutoSize = true;
+            this.label99.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label99.Location = new System.Drawing.Point(9, 223);
+            this.label99.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            this.label99.Name = "label99";
+            this.label99.Size = new System.Drawing.Size(73, 20);
+            this.label99.TabIndex = 19;
+            this.label99.Text = "Public :";
+            // 
+            // label100
+            // 
+            this.label100.AutoSize = true;
+            this.label100.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label100.Location = new System.Drawing.Point(9, 262);
+            this.label100.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            this.label100.Name = "label100";
+            this.label100.Size = new System.Drawing.Size(73, 20);
+            this.label100.TabIndex = 17;
+            this.label100.Text = "Rayon :";
+            // 
+            // label101
+            // 
+            this.label101.AutoSize = true;
+            this.label101.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label101.Location = new System.Drawing.Point(9, 69);
+            this.label101.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            this.label101.Name = "label101";
+            this.label101.Size = new System.Drawing.Size(60, 20);
+            this.label101.TabIndex = 8;
+            this.label101.Text = "Titre :";
+            // 
+            // label102
+            // 
+            this.label102.AutoSize = true;
+            this.label102.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label102.Location = new System.Drawing.Point(9, 31);
+            this.label102.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            this.label102.Name = "label102";
+            this.label102.Size = new System.Drawing.Size(199, 20);
+            this.label102.TabIndex = 5;
+            this.label102.Text = "Numéro de document :";
+            // 
+            // label104
+            // 
+            this.label104.AutoSize = true;
+            this.label104.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label104.Location = new System.Drawing.Point(9, 300);
+            this.label104.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            this.label104.Name = "label104";
+            this.label104.Size = new System.Drawing.Size(176, 20);
+            this.label104.TabIndex = 6;
+            this.label104.Text = "Chemin de l\'image :";
+            // 
+            // label106
+            // 
+            this.label106.AutoSize = true;
+            this.label106.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label106.Location = new System.Drawing.Point(9, 108);
+            this.label106.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            this.label106.Name = "label106";
+            this.label106.Size = new System.Drawing.Size(111, 20);
+            this.label106.TabIndex = 7;
+            this.label106.Text = "Périodicité :";
+            // 
+            // groupBox9
+            // 
+            this.groupBox9.Controls.Add(this.buttonAbonnementSupprimer);
+            this.groupBox9.Controls.Add(this.buttonAbonnementAjouter);
+            this.groupBox9.Controls.Add(this.buttonAbonnementRechercher);
+            this.groupBox9.Controls.Add(this.label107);
+            this.groupBox9.Controls.Add(this.textBoxAbonnementRecherche);
+            this.groupBox9.Controls.Add(this.dataGridViewAbonnementsListe);
+            this.groupBox9.Location = new System.Drawing.Point(14, 23);
+            this.groupBox9.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
+            this.groupBox9.Name = "groupBox9";
+            this.groupBox9.Padding = new System.Windows.Forms.Padding(4, 5, 4, 5);
+            this.groupBox9.Size = new System.Drawing.Size(1288, 556);
+            this.groupBox9.TabIndex = 26;
+            this.groupBox9.TabStop = false;
+            this.groupBox9.Text = "Recherche";
+            // 
+            // buttonAbonnementSupprimer
+            // 
+            this.buttonAbonnementSupprimer.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold);
+            this.buttonAbonnementSupprimer.Location = new System.Drawing.Point(1136, 514);
+            this.buttonAbonnementSupprimer.Name = "buttonAbonnementSupprimer";
+            this.buttonAbonnementSupprimer.Size = new System.Drawing.Size(144, 34);
+            this.buttonAbonnementSupprimer.TabIndex = 19;
+            this.buttonAbonnementSupprimer.Tag = "";
+            this.buttonAbonnementSupprimer.Text = "Supprimer";
+            this.buttonAbonnementSupprimer.UseVisualStyleBackColor = true;
+            this.buttonAbonnementSupprimer.Click += new System.EventHandler(this.buttonAbonnementSupprimer_Click);
+            // 
+            // buttonAbonnementAjouter
+            // 
+            this.buttonAbonnementAjouter.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold);
+            this.buttonAbonnementAjouter.Location = new System.Drawing.Point(962, 514);
+            this.buttonAbonnementAjouter.Name = "buttonAbonnementAjouter";
+            this.buttonAbonnementAjouter.Size = new System.Drawing.Size(144, 34);
+            this.buttonAbonnementAjouter.TabIndex = 17;
+            this.buttonAbonnementAjouter.Tag = "";
+            this.buttonAbonnementAjouter.Text = "Ajouter";
+            this.buttonAbonnementAjouter.UseVisualStyleBackColor = true;
+            this.buttonAbonnementAjouter.Click += new System.EventHandler(this.buttonAbonnementAjouter_Click);
+            // 
+            // buttonAbonnementRechercher
+            // 
+            this.buttonAbonnementRechercher.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.buttonAbonnementRechercher.Location = new System.Drawing.Point(415, 514);
+            this.buttonAbonnementRechercher.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
+            this.buttonAbonnementRechercher.Name = "buttonAbonnementRechercher";
+            this.buttonAbonnementRechercher.Size = new System.Drawing.Size(144, 34);
+            this.buttonAbonnementRechercher.TabIndex = 14;
+            this.buttonAbonnementRechercher.Text = "Rechercher";
+            this.buttonAbonnementRechercher.UseVisualStyleBackColor = true;
+            this.buttonAbonnementRechercher.Click += new System.EventHandler(this.buttonAbonnementRechercher_Click);
+            // 
+            // label107
+            // 
+            this.label107.AutoSize = true;
+            this.label107.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label107.Location = new System.Drawing.Point(9, 518);
+            this.label107.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            this.label107.Name = "label107";
+            this.label107.Size = new System.Drawing.Size(277, 20);
+            this.label107.TabIndex = 13;
+            this.label107.Text = "Saisir un numéro de document :";
+            // 
+            // textBoxAbonnementRecherche
+            // 
+            this.textBoxAbonnementRecherche.Location = new System.Drawing.Point(299, 517);
+            this.textBoxAbonnementRecherche.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
+            this.textBoxAbonnementRecherche.Name = "textBoxAbonnementRecherche";
+            this.textBoxAbonnementRecherche.Size = new System.Drawing.Size(98, 26);
+            this.textBoxAbonnementRecherche.TabIndex = 12;
+            // 
+            // dataGridViewAbonnementsListe
+            // 
+            this.dataGridViewAbonnementsListe.AllowUserToAddRows = false;
+            this.dataGridViewAbonnementsListe.AllowUserToDeleteRows = false;
+            this.dataGridViewAbonnementsListe.AllowUserToResizeColumns = false;
+            this.dataGridViewAbonnementsListe.AllowUserToResizeRows = false;
+            this.dataGridViewAbonnementsListe.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.dataGridViewAbonnementsListe.Location = new System.Drawing.Point(14, 44);
+            this.dataGridViewAbonnementsListe.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
+            this.dataGridViewAbonnementsListe.MultiSelect = false;
+            this.dataGridViewAbonnementsListe.Name = "dataGridViewAbonnementsListe";
+            this.dataGridViewAbonnementsListe.ReadOnly = true;
+            this.dataGridViewAbonnementsListe.RowHeadersVisible = false;
+            this.dataGridViewAbonnementsListe.RowHeadersWidth = 62;
+            this.dataGridViewAbonnementsListe.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
+            this.dataGridViewAbonnementsListe.Size = new System.Drawing.Size(1266, 429);
+            this.dataGridViewAbonnementsListe.TabIndex = 4;
+            this.dataGridViewAbonnementsListe.ColumnHeaderMouseClick += new System.Windows.Forms.DataGridViewCellMouseEventHandler(this.dataGridViewAbonnementsListe_ColumnHeaderMouseClick);
+            this.dataGridViewAbonnementsListe.SelectionChanged += new System.EventHandler(this.dataGridViewAbonnementsListe_SelectionChanged);
+            // 
             // FrmMediatek
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
@@ -3246,6 +3729,7 @@ namespace MediaTekDocuments.view
             this.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.Name = "FrmMediatek";
             this.Text = "Gestion des documents de la médiathèque";
+            this.Load += new System.EventHandler(this.FrmMediatek_Load);
             this.tabOngletsApplication.ResumeLayout(false);
             this.tabLivres.ResumeLayout(false);
             this.grpLivresInfos.ResumeLayout(false);
@@ -3293,6 +3777,14 @@ namespace MediaTekDocuments.view
             this.groupBox6.ResumeLayout(false);
             this.groupBox6.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridViewCommandeDvdsListe)).EndInit();
+            this.tabCommandeRevue.ResumeLayout(false);
+            this.groupBox7.ResumeLayout(false);
+            this.groupBox7.PerformLayout();
+            this.groupBoxRevueInfos.ResumeLayout(false);
+            this.groupBoxRevueInfos.PerformLayout();
+            this.groupBox9.ResumeLayout(false);
+            this.groupBox9.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.dataGridViewAbonnementsListe)).EndInit();
             this.ResumeLayout(false);
 
         }
@@ -3549,6 +4041,44 @@ namespace MediaTekDocuments.view
         private System.Windows.Forms.Label label91;
         private System.Windows.Forms.TextBox textBoxCommandeDvdRecherche;
         private System.Windows.Forms.DataGridView dataGridViewCommandeDvdsListe;
+        private System.Windows.Forms.TabPage tabCommandeRevue;
+        private System.Windows.Forms.GroupBox groupBox7;
+        private System.Windows.Forms.TextBox textBoxRevueNumeroDansCommande;
+        private System.Windows.Forms.Label label92;
+        private System.Windows.Forms.Label label95;
+        private System.Windows.Forms.Label label96;
+        private System.Windows.Forms.Label label97;
+        private System.Windows.Forms.Button buttonCommandeRevueAnnuler;
+        private System.Windows.Forms.Button buttonCommandeRevueValider;
+        private System.Windows.Forms.TextBox textBoxCommandeRevueMontant;
+        private System.Windows.Forms.DateTimePicker dateTimePickerCommandeRevueDate;
+        private System.Windows.Forms.TextBox textBoxLCommandeRevueNumero;
+        private System.Windows.Forms.GroupBox groupBoxRevueInfos;
+        private System.Windows.Forms.TextBox textBoxRevuePeriodicite;
+        private System.Windows.Forms.TextBox textBoxRevueImage;
+        private System.Windows.Forms.TextBox textBoxRevueRayon;
+        private System.Windows.Forms.TextBox textBoxRevuePublic;
+        private System.Windows.Forms.TextBox textBoxRevueGenre;
+        private System.Windows.Forms.TextBox textBoxRevueDateMiseADispo;
+        private System.Windows.Forms.TextBox textBoxRevueTitre;
+        private System.Windows.Forms.TextBox textBoxRevueNumero;
+        private System.Windows.Forms.Label label98;
+        private System.Windows.Forms.Label label99;
+        private System.Windows.Forms.Label label100;
+        private System.Windows.Forms.Label label101;
+        private System.Windows.Forms.Label label102;
+        private System.Windows.Forms.Label label104;
+        private System.Windows.Forms.Label label106;
+        private System.Windows.Forms.GroupBox groupBox9;
+        private System.Windows.Forms.Button buttonAbonnementSupprimer;
+        private System.Windows.Forms.Button buttonAbonnementAjouter;
+        private System.Windows.Forms.Button buttonAbonnementRechercher;
+        private System.Windows.Forms.Label label107;
+        private System.Windows.Forms.TextBox textBoxAbonnementRecherche;
+        private System.Windows.Forms.DataGridView dataGridViewAbonnementsListe;
+        private System.Windows.Forms.Label label103;
+        private System.Windows.Forms.Label label93;
+        private System.Windows.Forms.DateTimePicker dateTimePickerAbonnementFin;
     }
 }
 
