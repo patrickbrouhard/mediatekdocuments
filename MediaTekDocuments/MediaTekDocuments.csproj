@@ -63,7 +63,6 @@
   <ItemGroup>
     <Compile Include="commands\CreerCommandeCommand.cs" />
     <Compile Include="commands\CreerDocumentCommand.cs" />
-    <Compile Include="Dtos\CommandeDocumentDto.cs" />
     <Compile Include="manager\ApiRest.cs" />
     <Compile Include="controller\FrmMediatekController.cs" />
     <Compile Include="dal\Access.cs" />

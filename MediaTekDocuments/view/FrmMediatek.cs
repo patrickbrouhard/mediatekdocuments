@@ -23,7 +23,6 @@ namespace MediaTekDocuments.view
     {
         #region Commun
         private readonly FrmMediatekController controller;
-        private readonly AbonnementService abonnementService;
         private readonly BindingSource bdgGenres = new BindingSource();
         private readonly BindingSource bdgPublics = new BindingSource();
         private readonly BindingSource bdgRayons = new BindingSource();
@@ -52,7 +51,6 @@ namespace MediaTekDocuments.view
         {
             InitializeComponent();
             this.controller = new FrmMediatekController();
-            this.abonnementService = new AbonnementService();
         }
 
         private void FrmMediatek_Load(object sender, EventArgs e)
