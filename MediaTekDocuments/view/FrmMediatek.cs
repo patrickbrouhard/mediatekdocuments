@@ -749,32 +749,39 @@ namespace MediaTekDocuments.view
                 return;
             }
 
+            Exemplaire exemplaireMaj = new Exemplaire(
+                exemplaire.Numero,
+                exemplaire.DateAchat,
+                exemplaire.Photo,
+                nouvelIdEtat,
+                null,
+                exemplaire.Id
+            );
+
             try
             {
-                Exemplaire exemplaireMaj = new Exemplaire(
-                    exemplaire.Numero,
-                    exemplaire.DateAchat,
-                    exemplaire.Photo,
-                    nouvelIdEtat,
-                    null, // inutile pour l’API
-                    exemplaire.Id
-                    );
+                bool success = controller.ModifierExemplaire(exemplaireMaj);
 
-                controller.ModifierExemplaire(exemplaireMaj);
-
-                exemplaire.IdEtat = nouvelIdEtat;
-
-                var etat = lesEtats.FirstOrDefault(et => et.Id == nouvelIdEtat);
-                exemplaire.LibelleEtat = etat?.Libelle;
-
-                bdgExemplairesLivresListe.ResetBindings(false);
-
-                MessageBox.Show("État mis à jour avec succès.");
+                if (!success)
+                {
+                    MessageBox.Show("La mise à jour a échoué.");
+                    return;
+                }
             }
             catch (Exception ex)
             {
                 MessageBox.Show("Erreur lors de la mise à jour : " + ex.Message);
+                return;
             }
+
+            exemplaire.IdEtat = nouvelIdEtat;
+
+            var etat = lesEtats.FirstOrDefault(et => et.Id == nouvelIdEtat);
+            exemplaire.LibelleEtat = etat?.Libelle;
+
+            bdgExemplairesLivresListe.ResetBindings(false);
+
+            MessageBox.Show("État mis à jour avec succès.");
 
             operationEnCours = Operation.None;
             SetModeExemplaireLivre(operationEnCours);
@@ -817,21 +824,11 @@ namespace MediaTekDocuments.view
 
         private void dataGridViewLivreExemplaires_ColumnHeaderMouseClick(object sender, DataGridViewCellMouseEventArgs e)
         {
-            string titreColonne = dataGridViewLivreExemplaires.Columns[e.ColumnIndex].HeaderText;
-            List<Exemplaire> sortedList = new List<Exemplaire>();
-
-            switch (titreColonne)
-            {
-                case "Numéro":
-                    sortedList = lesExemplairesLivres.OrderBy(o => o.Numero).ToList();
-                    break;
-                case "Etat":
-                    sortedList = lesExemplairesLivres.OrderBy(o => o.LibelleEtat).ToList();
-                    break;
-                case "Date achat":
-                    sortedList = lesExemplairesLivres.OrderBy(o => o.DateAchat).ToList();
-                    break;
-            }
+            var sortedList = TrierExemplaires(
+                dataGridViewLivreExemplaires,
+                lesExemplairesLivres,
+                e.ColumnIndex
+            );
 
             RemplirExemplairesLivresListe(sortedList);
         }
@@ -3486,7 +3483,28 @@ namespace MediaTekDocuments.view
             dgv.DataSource = source;
         }
 
-        
+        private List<Exemplaire> TrierExemplaires(DataGridView dgv, List<Exemplaire> liste, int columnIndex)
+        {
+            string titreColonne = dgv.Columns[columnIndex].HeaderText;
+            List<Exemplaire> sortedList = new List<Exemplaire>();
+
+            switch (titreColonne)
+            {
+                case "Numéro":
+                    sortedList = liste.OrderBy(o => o.Numero).ToList();
+                    break;
+
+                case "Etat":
+                    sortedList = liste.OrderBy(o => o.LibelleEtat).ToList();
+                    break;
+
+                case "Date achat":
+                    sortedList = liste.OrderBy(o => o.DateAchat).ToList();
+                    break;
+            }
+
+            return sortedList;
+        }
 
         #endregion
     }
