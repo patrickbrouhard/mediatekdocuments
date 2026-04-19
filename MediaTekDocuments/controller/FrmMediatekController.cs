@@ -93,13 +93,23 @@ namespace MediaTekDocuments.controller
         }
 
         /// <summary>
-        /// récupère les exemplaires d'une revue
+        /// Récupère la liste complète des objets d'état disponibles.
         /// </summary>
-        /// <param name="idDocuement">id de la revue concernée</param>
-        /// <returns>Liste d'objets Exemplaire</returns>
-        public List<Exemplaire> GetExemplairesRevue(string idDocuement)
+        /// <returns>Une liste d'objets <see cref="Etat"/> représentant tous les états existants. La liste est vide s'il n'existe
+        /// aucun état.</returns>
+        public List<Etat> GetAllEtats()
         {
-            return access.GetExemplairesRevue(idDocuement);
+            return access.GetAllEtats();
+        }
+
+        /// <summary>
+        /// récupère les exemplaires d'un document à partir de son id
+        /// </summary>
+        /// <param name="idDocument">id du document concerné</param>
+        /// <returns>Liste d'objets Exemplaire</returns>
+        public List<Exemplaire> GetExemplairesDocument(string idDocument)
+        {
+            return access.GetExemplairesDocument(idDocument);
         }
 
         /// <summary>
@@ -110,6 +120,26 @@ namespace MediaTekDocuments.controller
         public bool CreerExemplaire(Exemplaire exemplaire)
         {
             return access.CreerExemplaire(exemplaire);
+        }
+
+        /// <summary>
+        /// Modifie les informations d'un exemplaire existant dans le système.
+        /// </summary>
+        /// <param name="exemplaire"></param>
+        /// <returns>true si la modification a réussi ; sinon, false.</returns>
+        public bool ModifierExemplaire(Exemplaire exemplaire)
+        {
+            return access.ModifierExemplaire(exemplaire);
+        }
+
+        /// <summary>
+        /// Supprime l'exemplaire spécifié de la collection ou de la source de données sous-jacente.
+        /// </summary>
+        /// <param name="exemplaire"></param>
+        /// <returns>true si l'exemplaire a été supprimé avec succès ; sinon, false.</returns>
+        public bool SupprimerExemplaire(Exemplaire exemplaire)
+        {
+            return access.SupprimerExemplaire(exemplaire);
         }
 
         public bool SauvegarderDocument(CreerDocumentCommand cmd, bool isNew)
@@ -167,7 +197,7 @@ namespace MediaTekDocuments.controller
 
         public bool PeutSupprimerAbonnement(Abonnement abonnement)
         {
-            var exemplaires = GetExemplairesRevue(abonnement.IdRevue);
+            var exemplaires = GetExemplairesDocument(abonnement.IdRevue);
             return abonnementService.PeutSupprimerAbonnement(
                 abonnement,
                 exemplaires
