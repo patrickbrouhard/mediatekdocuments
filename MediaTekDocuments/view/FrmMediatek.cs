@@ -547,7 +547,10 @@ namespace MediaTekDocuments.view
                     Livre livre = (Livre)bdgLivresListe.List[bdgLivresListe.Position];
                     AfficheLivresInfos(livre);
 
-                    var exemplaires = controller.GetExemplairesDocument(livre.Id);
+                    var exemplaires = controller.GetExemplairesDocument(livre.Id)
+                        .OrderByDescending(ex => ex.DateAchat)
+                        .ToList();
+
                     if (exemplaires != null && exemplaires.Count > 0)
                     {
                         RemplirExemplairesLivresListe(exemplaires);
@@ -555,7 +558,6 @@ namespace MediaTekDocuments.view
                     else
                     {
                         bdgExemplairesLivresListe.DataSource = null;
-                        //comboBoxLivreEtats.SelectedValue = null;
                         comboBoxLivreEtats.SelectedIndex = -1;
                     }
                 }
@@ -661,12 +663,15 @@ namespace MediaTekDocuments.view
 
         private void RemplirExemplairesLivresListe(List<Exemplaire> exemplaires)
         {
-            var exemplairesTries = exemplaires
-                .OrderByDescending(e => e.DateAchat)
-                .ToList();
+            if (exemplaires == null)
+            {
+                bdgExemplairesLivresListe.DataSource = null;
+                return;
+            }
 
-            lesExemplairesLivres = exemplairesTries;
-            bdgExemplairesLivresListe.DataSource = exemplairesTries;
+            lesExemplairesLivres = exemplaires;
+            bdgExemplairesLivresListe.DataSource = null;
+            bdgExemplairesLivresListe.DataSource = exemplaires;
 
             if (dataGridViewLivreExemplaires.Rows.Count > 0)
             {
@@ -687,7 +692,6 @@ namespace MediaTekDocuments.view
             }
             else
             {
-                //comboBoxLivreEtats.SelectedValue = null;
                 comboBoxLivreEtats.SelectedIndex = -1;
 
             }
@@ -1194,7 +1198,10 @@ namespace MediaTekDocuments.view
                     Dvd dvd = (Dvd)bdgDvdListe.List[bdgDvdListe.Position];
                     AfficheDvdInfos(dvd);
 
-                    var exemplaires = controller.GetExemplairesDocument(dvd.Id);
+                    var exemplaires = controller.GetExemplairesDocument(dvd.Id)
+                        .OrderByDescending(ex => ex.DateAchat)
+                        .ToList();
+
                     if (exemplaires != null && exemplaires.Count > 0)
                     {
                         RemplirExemplairesDvdsListe(exemplaires);
@@ -1308,12 +1315,15 @@ namespace MediaTekDocuments.view
 
         private void RemplirExemplairesDvdsListe(List<Exemplaire> exemplaires)
         {
-            var exemplairesTries = exemplaires
-                .OrderByDescending(e => e.DateAchat)
-                .ToList();
+            if (exemplaires == null)
+            {
+                bdgExemplairesDvdListe.DataSource = null;
+                return;
+            }
 
-            lesExemplairesDvd = exemplairesTries;
-            bdgExemplairesDvdListe.DataSource = exemplairesTries;
+            lesExemplairesDvd = exemplaires;
+            bdgExemplairesDvdListe.DataSource = null;
+            bdgExemplairesDvdListe.DataSource = exemplaires;
 
             if (dataGridViewDvdExemplaires.Rows.Count > 0)
             {
