@@ -204,10 +204,9 @@ namespace MediaTekDocuments.controller
             );
         }
 
-        //public bool RenouvelerAbonnement(Abonnement abonnement, int mois)
-        //{
-        //    abonnement.DateFinAbonnement = abonnement.DateFinAbonnement?.AddMonths(mois);
-        //    return access.ModifierCommande(abonnement);
-        //}
+        public Utilisateur GetUtilisateur(string login, string password)
+        {
+            return access.Authentifier(login, password);
+        }
     }
 }

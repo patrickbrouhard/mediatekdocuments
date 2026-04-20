@@ -73,6 +73,7 @@
     <Compile Include="model\CommandeFactory.cs" />
     <Compile Include="model\DocumentFactory.cs" />
     <Compile Include="model\Suivi.cs" />
+    <Compile Include="model\Utilisateur.cs" />
     <Compile Include="Services\AbonnementService.cs" />
     <Compile Include="view\FrmMediatek.cs">
       <SubType>Form</SubType>

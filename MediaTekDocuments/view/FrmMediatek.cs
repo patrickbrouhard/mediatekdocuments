@@ -1490,16 +1490,6 @@ namespace MediaTekDocuments.view
             RemplirExemplairesDvdsListe(sortedList);
         }
 
-
-
-
-
-
-
-
-
-
-
         #endregion
 
         #region Onglet Revues
@@ -3859,4 +3849,5 @@ namespace MediaTekDocuments.view
 
         #endregion
     }
+
 }
