@@ -1,5 +1,4 @@
 ﻿using MediaTekDocuments.commands;
-using MediaTekDocuments.dto;
 using MediaTekDocuments.manager;
 using MediaTekDocuments.model;
 using Newtonsoft.Json;
@@ -77,7 +76,7 @@ namespace MediaTekDocuments.dal
         /// <returns>instance unique de la classe</returns>
         public static Access GetInstance()
         {
-            if(instance == null)
+            if (instance == null)
             {
                 instance = new Access();
             }
@@ -155,14 +154,28 @@ namespace MediaTekDocuments.dal
         }
 
         /// <summary>
+        /// Récupère la liste complète des états disponibles.
+        /// </summary>
+        /// <returns>Une liste d'objets <see cref="Etat"/> représentant tous les états. La liste est vide s'il n'existe aucun
+        /// état.</returns>
+        public List<Etat> GetAllEtats()
+        {
+            List<Etat> lesEtats = TraitementRecup<Etat>(GET, "etat", null);
+            return lesEtats;
+        }
+
+        /// <summary>
         /// Retourne les exemplaires d'une revue
         /// </summary>
         /// <param name="idDocument">id de la revue concernée</param>
         /// <returns>Liste d'objets Exemplaire</returns>
-        public List<Exemplaire> GetExemplairesRevue(string idDocument)
+        public List<Exemplaire> GetExemplairesDocument(string idDocument)
         {
+            Debug.WriteLine("idDocument dans GetExemplairesDocument : " + idDocument);
             String jsonIdDocument = convertToJson("id", idDocument);
+            Debug.WriteLine(jsonIdDocument);
             List<Exemplaire> lesExemplaires = TraitementRecup<Exemplaire>(GET, "exemplaire/" + jsonIdDocument, null);
+            Debug.WriteLine($"Nombre d'exemplaires récupérés : {lesExemplaires.Count}");
             return lesExemplaires;
         }
 
@@ -309,7 +322,7 @@ namespace MediaTekDocuments.dal
         /// <param name="message">information envoyée dans l'url</param>
         /// <param name="parametres">paramètres à envoyer dans le body, au format "chp1=val1&chp2=val2&..."</param>
         /// <returns>liste d'objets récupérés (ou liste vide)</returns>
-        private List<T> TraitementRecup<T> (String methode, String message, String parametres)
+        private List<T> TraitementRecup<T>(String methode, String message, String parametres)
         {
             // transformation : préparation de la liste qui recevra les objets désérialisés
             List<T> liste = new List<T>();
@@ -332,9 +345,10 @@ namespace MediaTekDocuments.dal
                 {
                     Console.WriteLine("code erreur = " + code + " message = " + (String)retour["message"]);
                 }
-            }catch(Exception e)
+            }
+            catch (Exception e)
             {
-                Console.WriteLine("Erreur lors de l'accès à l'API : "+e.Message);
+                Console.WriteLine("Erreur lors de l'accès à l'API : " + e.Message);
                 Environment.Exit(0);
             }
             return liste;
@@ -504,5 +518,58 @@ namespace MediaTekDocuments.dal
         }
 
         #endregion
+
+        /// <summary>
+        /// Modifie l'exemplaire spécifié dans la collection ou la base de données distante.
+        /// </summary>
+        /// <param name="exemplaire">L'exemplaire à modifier. Ne peut pas être null et doit contenir un identifiant valide.</param>
+        /// <returns>true si l'exemplaire a été modifié avec succès ; sinon, false.</returns>
+        public bool ModifierExemplaire(Exemplaire exemplaire)
+        {
+            string endpoint = $"exemplaire/{exemplaire.Id}";
+            string json = JsonConvert.SerializeObject(exemplaire, new CustomDateTimeConverter());
+
+            Debug.WriteLine($"Endpoint pour la modification de l'exemplaire : {endpoint}");
+            Debug.WriteLine($"JSON envoyé pour la modification de l'exemplaire : {json}");
+
+            try
+            {
+                return ExecuteCommande(PUT, endpoint, "champs=" + json);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// Supprime l'exemplaire spécifié de la collection ou de la base de données distante.
+        /// </summary>
+        /// <param name="exemplaire">L'exemplaire à supprimer. Ne peut pas être null et doit contenir un identifiant valide.</param>
+        /// <returns>true si l'exemplaire a été supprimé avec succès ; sinon, false.</returns>
+        public bool SupprimerExemplaire(Exemplaire exemplaire)
+        {
+            string json = JsonConvert.SerializeObject(new
+            {
+                id = exemplaire.Id,
+                numero = exemplaire.Numero
+            });
+            string encodedJson = Uri.EscapeDataString(json);
+            string endpoint = $"exemplaire/{encodedJson}";
+
+            Debug.WriteLine($"JSON pour la suppression de l'exemplaire : {json}");
+
+            Debug.WriteLine($"Endpoint pour la suppression de l'exemplaire : {endpoint}");
+            try
+            {
+                return ExecuteCommande(DELETE, endpoint, null);
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine(ex.Message);
+                return false;
+            }
+        }
     }
 }
