@@ -1,9 +1,5 @@
-﻿using Newtonsoft.Json;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using MediaTekDocuments.Services;
+using Newtonsoft.Json;
 
 namespace MediaTekDocuments.model
 {
@@ -24,6 +20,9 @@ namespace MediaTekDocuments.model
         [JsonIgnore]
         public string Endpoint => "authentification";
 
+        [JsonIgnore]
+        public Service sonService => (Service)IdService;
+
         public Utilisateur() { }
 
         public Utilisateur(int id, string login, int idService, string libelleService)
@@ -37,6 +36,31 @@ namespace MediaTekDocuments.model
         public override string ToString()
         {
             return $"{Login} ({LibelleService})";
+        }
+
+        public bool PeutOuvrirApp()
+        {
+            return Permissions.PeutOuvrirApp(sonService);
+        }
+
+        public bool PeutModifierCatalogue()
+        {
+            return Permissions.PeutModifierCatalogue(sonService);
+        }
+
+        public bool PeutConsulterCatalogue()
+        {
+            return Permissions.PeutConsulterCatalogue(sonService);
+        }
+
+        public bool PeutGererCommandes()
+        {
+            return Permissions.PeutGererCommandes(sonService);
+        }
+
+        public bool PeutGererPrets()
+        {
+            return Permissions.PeutGererPrets(sonService);
         }
     }
 }

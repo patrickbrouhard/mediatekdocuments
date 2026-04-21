@@ -203,10 +203,5 @@ namespace MediaTekDocuments.controller
                 exemplaires
             );
         }
-
-        public Utilisateur GetUtilisateur(string login, string password)
-        {
-            return access.Authentifier(login, password);
-        }
     }
 }

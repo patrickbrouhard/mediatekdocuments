@@ -26,6 +26,7 @@ namespace MediaTekDocuments.view
         private readonly BindingSource bdgGenres = new BindingSource();
         private readonly BindingSource bdgPublics = new BindingSource();
         private readonly BindingSource bdgRayons = new BindingSource();
+        private Utilisateur utilisateur;
 
         // flag pour indiquer que le chargement est en cours afin d'éviter les bugs de rafraîchissement causés par
         // les événements combo/datagridview (répare comme ça les appels multiples à l'API lors du chargement de liste)
@@ -38,6 +39,7 @@ namespace MediaTekDocuments.view
         // variable pour stocker l'opération en cours (ajout, modification, suppression)
         private Operation operationEnCours = Operation.None;
 
+        // enums pour les différentes opérations, utilisées pour gérer l'état du formulaire et les actions à faire
         public enum Operation
         {
             None,
@@ -46,6 +48,7 @@ namespace MediaTekDocuments.view
             Supprimer
         }
 
+        // enum pour les types de médias, utilisée pour différencier les traitements selon le type de document concerné
         public enum TypeMedia
         {
             None,
@@ -57,15 +60,27 @@ namespace MediaTekDocuments.view
         /// <summary>
         /// Constructeur : création du contrôleur lié à ce formulaire
         /// </summary>
-        internal FrmMediatek()
+        internal FrmMediatek(Utilisateur utilisateur)
         {
             InitializeComponent();
             this.controller = new FrmMediatekController();
+            this.utilisateur = utilisateur;
         }
 
         private void FrmMediatek_Load(object sender, EventArgs e)
         {
-            AfficherAlerteAbonnements();
+            if (utilisateur.PeutGererCommandes())
+            {
+                AfficherAlerteAbonnements();
+            }
+            else 
+            {
+                tabOngletsApplication.TabPages.Remove(tabCommandeLivre);
+                tabOngletsApplication.TabPages.Remove(tabCommandeDvd);
+                tabOngletsApplication.TabPages.Remove(tabCommandeRevue);
+                tabOngletsApplication.TabPages.Remove(tabReceptionRevue);
+            }
+
             lesEtats = controller.GetAllEtats();
             RemplirComboEtats(lesEtats, comboBoxLivreEtats);
             RemplirComboEtats(lesEtats, comboBoxDvdEtats);
