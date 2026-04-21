@@ -78,7 +78,6 @@ namespace MediaTekDocuments.view
                 tabOngletsApplication.TabPages.Remove(tabCommandeLivre);
                 tabOngletsApplication.TabPages.Remove(tabCommandeDvd);
                 tabOngletsApplication.TabPages.Remove(tabCommandeRevue);
-                tabOngletsApplication.TabPages.Remove(tabReceptionRevue);
             }
 
             lesEtats = controller.GetAllEtats();
@@ -88,8 +87,8 @@ namespace MediaTekDocuments.view
         }
 
         /// <summary>
-        /// Affiche une boîte de dialogue d'alerte listant les abonnements arrivant à expiration dans les 30 prochains
-        /// jours (s'il y en a).
+        /// Affiche une boîte de dialogue d'alerte listant les abonnements arrivant à
+        /// expiration dans les 30 prochains jours (s'il y en a).
         /// </summary>
         private void AfficherAlerteAbonnements()
         {
@@ -217,6 +216,7 @@ namespace MediaTekDocuments.view
         /// <param name="e"></param>
         private void TabLivres_Enter(object sender, EventArgs e)
         {
+            SetModeLivre(Operation.None);
             SetModeExemplaireLivre(Operation.None);
             RemplirComboCategorie(controller.GetAllGenres(), bdgGenres, cbxLivresGenres);
             RemplirComboCategorie(controller.GetAllPublics(), bdgPublics, cbxLivresPublics);
@@ -233,7 +233,8 @@ namespace MediaTekDocuments.view
 
         private void SetModeLivre(Operation operation)
         {
-            bool edition = operation == Operation.Ajouter || operation == Operation.Modifier;
+            bool edition = (operation == Operation.Ajouter || operation == Operation.Modifier)
+                && utilisateur.PeutModifierCatalogue();
 
             dgvLivresListe.Enabled = !edition;
 
@@ -250,9 +251,9 @@ namespace MediaTekDocuments.view
             txbLivresNumero.ReadOnly = true;
 
             // Boutons
-            buttonLivreAjouter.Enabled = !edition;
-            buttonLivreModifier.Enabled = !edition;
-            buttonLivreSupprimer.Enabled = !edition;
+            buttonLivreAjouter.Enabled = utilisateur.PeutModifierCatalogue() && !edition;
+            buttonLivreModifier.Enabled = utilisateur.PeutModifierCatalogue() && !edition;
+            buttonLivreSupprimer.Enabled = utilisateur.PeutModifierCatalogue() && !edition;
 
             buttonValiderLivre.Enabled = edition;
             buttonAnnulerLivre.Enabled = edition;
@@ -714,14 +715,16 @@ namespace MediaTekDocuments.view
 
         private void SetModeExemplaireLivre(Operation mode)
         {
-            bool edition = mode == Operation.Modifier;
+            bool edition = mode == Operation.Modifier
+                && utilisateur.PeutModifierCatalogue();
+
 
             comboBoxLivreEtats.Enabled = edition;
             buttonLivreExemplaireValider.Enabled = edition;
             buttonLivreExemplaireSupprimer.Enabled = edition;
             buttonLivreExemplaireAnnuler.Enabled = edition;
 
-            buttonLivreExemplaireModifier.Enabled = !edition;
+            buttonLivreExemplaireModifier.Enabled = !edition && utilisateur.PeutModifierCatalogue();
         }
 
         private void buttonLivreExemplaireModifier_Click(object sender, EventArgs e)
@@ -869,6 +872,7 @@ namespace MediaTekDocuments.view
         /// <param name="e"></param>
         private void tabDvd_Enter(object sender, EventArgs e)
         {
+            SetModeDvd(Operation.None);
             SetModeExemplaireDvd(Operation.None);
             RemplirComboCategorie(controller.GetAllGenres(), bdgGenres, cbxDvdGenres);
             RemplirComboCategorie(controller.GetAllPublics(), bdgPublics, cbxDvdPublics);
@@ -885,7 +889,8 @@ namespace MediaTekDocuments.view
 
         private void SetModeDvd(Operation operation)
         {
-            bool edition = operation == Operation.Ajouter || operation == Operation.Modifier;
+            bool edition = (operation == Operation.Ajouter || operation == Operation.Modifier)
+                 && utilisateur.PeutModifierCatalogue();
 
             dgvDvdListe.Enabled = !edition;
 
@@ -903,9 +908,9 @@ namespace MediaTekDocuments.view
             txbDvdNumero.ReadOnly = true;
 
             // Boutons
-            buttonDvdAjouter.Enabled = !edition;
-            buttonDvdModifier.Enabled = !edition;
-            buttonDvdSupprimer.Enabled = !edition;
+            buttonDvdAjouter.Enabled = utilisateur.PeutModifierCatalogue() && !edition;
+            buttonDvdModifier.Enabled = utilisateur.PeutModifierCatalogue() && !edition;
+            buttonDvdSupprimer.Enabled = utilisateur.PeutModifierCatalogue() && !edition;
 
             buttonValiderDvd.Enabled = edition;
             buttonAnnulerDvd.Enabled = edition;
@@ -1365,12 +1370,12 @@ namespace MediaTekDocuments.view
 
         private void SetModeExemplaireDvd(Operation operation)
         {
-            bool edition = operation == Operation.Modifier;
+            bool edition = operation == Operation.Modifier && utilisateur.PeutModifierCatalogue();
 
             comboBoxDvdEtats.Enabled = edition;
 
-            buttonDvdExemplaireModifier.Enabled = !edition;
-            buttonDvdExemplaireSupprimer.Enabled = edition;
+            buttonDvdExemplaireModifier.Enabled = !edition && utilisateur.PeutModifierCatalogue();
+            buttonDvdExemplaireSupprimer.Enabled = edition && utilisateur.PeutModifierCatalogue();
 
             buttonDvdExemplaireValider.Enabled = edition;
             buttonDvdExemplaireAnnuler.Enabled = edition;
@@ -1519,6 +1524,7 @@ namespace MediaTekDocuments.view
         /// <param name="e"></param>
         private void tabRevues_Enter(object sender, EventArgs e)
         {
+            SetModeRevue(Operation.None);
             lesRevues = controller.GetAllRevues();
             RemplirComboCategorie(controller.GetAllGenres(), bdgGenres, cbxRevuesGenres);
             RemplirComboCategorie(controller.GetAllPublics(), bdgPublics, cbxRevuesPublics);
@@ -1528,7 +1534,8 @@ namespace MediaTekDocuments.view
 
         private void SetModeRevue(Operation operation)
         {
-            bool edition = operation == Operation.Ajouter || operation == Operation.Modifier;
+            bool edition = (operation == Operation.Ajouter || operation == Operation.Modifier)
+                && utilisateur.PeutModifierCatalogue();
 
             dgvRevuesListe.Enabled = !edition;
 
@@ -1545,9 +1552,9 @@ namespace MediaTekDocuments.view
             txbRevuesNumero.ReadOnly = true;
 
             // Boutons
-            buttonRevueAjouter.Enabled = !edition;
-            buttonRevueModifier.Enabled = !edition;
-            buttonRevueSupprimer.Enabled = !edition;
+            buttonRevueAjouter.Enabled = utilisateur.PeutModifierCatalogue() && !edition;
+            buttonRevueModifier.Enabled = utilisateur.PeutModifierCatalogue() && !edition;
+            buttonRevueSupprimer.Enabled = utilisateur.PeutModifierCatalogue() && !edition;
 
             buttonValiderRevue.Enabled = edition;
             buttonAnnulerRevue.Enabled = edition;
@@ -1963,6 +1970,7 @@ namespace MediaTekDocuments.view
         private void tabReceptionRevue_Enter(object sender, EventArgs e)
         {
             SetModeExemplaireRevue(Operation.None);
+            btnReceptionExemplaireValider.Enabled = utilisateur.PeutModifierCatalogue();
 
             _isLoading = true;
             lesRevues = controller.GetAllRevues();
@@ -2203,14 +2211,14 @@ namespace MediaTekDocuments.view
 
         private void SetModeExemplaireRevue(Operation operation)
         {
-            bool edition = operation == Operation.Modifier;
+            bool edition = operation == Operation.Modifier && utilisateur.PeutModifierCatalogue();
 
             comboBoxRevueEtats.Enabled = edition;
             buttonRevueExemplaireValider.Enabled = edition;
             buttonRevueExemplaireSupprimer.Enabled = edition;
             buttonRevueExemplaireAnnuler.Enabled = edition;
 
-            buttonRevueExemplaireModifier.Enabled = !edition;
+            buttonRevueExemplaireModifier.Enabled = !edition && utilisateur.PeutModifierCatalogue();
         }
 
         private void buttonRevueExemplaireModifier_Click(object sender, EventArgs e)
