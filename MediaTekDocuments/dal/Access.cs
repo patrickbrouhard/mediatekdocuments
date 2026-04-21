@@ -58,10 +58,12 @@ namespace MediaTekDocuments.dal
         /// </summary>
         private Access()
         {
-            String authenticationString;
             try
             {
-                authenticationString = "admin:adminpwd";
+                string authenticationString = ConfigurationManager
+                    .ConnectionStrings["MediaTekDocuments.Properties.Settings.AuthString"]
+                    .ConnectionString;
+
                 api = ApiRest.GetInstance(uriApi, authenticationString);
             }
             catch (Exception e)
