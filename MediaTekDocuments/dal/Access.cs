@@ -10,6 +10,7 @@ using System.Configuration;
 using System.Diagnostics;
 using System.Linq;
 using System.Net;
+using System.Security.Cryptography;
 using System.Xml.Linq;
 using static MediaTekDocuments.view.FrmMediatek;
 
@@ -519,6 +520,8 @@ namespace MediaTekDocuments.dal
 
         #endregion
 
+        #region exemplaires
+
         /// <summary>
         /// Modifie l'exemplaire spécifié dans la collection ou la base de données distante.
         /// </summary>
@@ -570,6 +573,44 @@ namespace MediaTekDocuments.dal
                 Debug.WriteLine(ex.Message);
                 return false;
             }
+        }
+
+        #endregion
+
+        /// <summary>
+        /// Authentifie un utilisateur à partir de son login et de son mot de passe
+        /// Méthode spéciale car elle ne suit pas le même format que les autres (POST spécial)
+        /// </summary>
+        /// <param name="login">Login de l'utilisateur</param>
+        /// <param name="password">Mot de passe de l'utilisateur</param>
+        /// <returns>Objet Utilisateur contenant les informations de l'utilisateur si l'authentification réussit, sinon null</returns>
+        public Utilisateur Authentifier(string login, string password)
+        {
+            string json = JsonConvert.SerializeObject(new
+            {
+                login = login,
+                password = password
+            });
+
+            try
+            {
+                JObject retour = api.RecupDistant(POST, "authentification", "champs=" + json);
+
+                string code = (string)retour["code"];
+
+                if (code == "200")
+                {
+                    string resultString = JsonConvert.SerializeObject(retour["result"]);
+                    Utilisateur user = JsonConvert.DeserializeObject<Utilisateur>(resultString);
+                    return user;
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine("Erreur Authentification : " + ex.Message);
+            }
+
+            return null;
         }
     }
 }
