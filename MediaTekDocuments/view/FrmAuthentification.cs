@@ -26,6 +26,13 @@ namespace MediaTekDocuments.view
         private void FrmAuthentification_Load(object sender, EventArgs e)
         {
             textBoxUser.Focus();
+            PreRemplirChampsDebug();
+        }
+
+        // Méthode pour pré-remplir les champs de connexion en mode debug
+        [System.Diagnostics.Conditional("DEBUG")]
+        private void PreRemplirChampsDebug()
+        {
             textBoxUser.Text = "root";
             textBoxPwd.Text = "test";
         }

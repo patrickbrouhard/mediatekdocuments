@@ -364,3 +364,10 @@ FodyWeavers.xsd
 
 # SOnarQube
 .sonarqube/
+
+# scripts
+*.bat
+
+# Fichiers de logs
+logs/
+*.log

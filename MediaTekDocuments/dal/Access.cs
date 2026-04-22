@@ -7,12 +7,12 @@ using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Configuration;
-using System.Diagnostics;
 using System.Linq;
 using System.Net;
 using System.Security.Cryptography;
 using System.Xml.Linq;
 using static MediaTekDocuments.view.FrmMediatek;
+using Serilog;
 
 namespace MediaTekDocuments.dal
 {
@@ -49,11 +49,14 @@ namespace MediaTekDocuments.dal
         /// méthode HTTP pour delete
         /// </summary>
         private const string DELETE = "DELETE";
-        private const string CHAMPS = "champs=";
-        private const string RESULT = "result";
-
         /// <summary>
-        /// méthode HTTP pour update
+        /// nom du paramètre pour les données envoyées en POST/PUT
+        /// </summary>
+        private const string CHAMPS = "champs=";
+        /// <summary>
+        /// champ contenant le résultat dans le JSON retourné
+        /// </summary>
+        private const string RESULT = "result";
 
         /// <summary>
         /// Méthode privée pour créer un singleton
@@ -63,6 +66,14 @@ namespace MediaTekDocuments.dal
         {
             try
             {
+                Log.Logger = new LoggerConfiguration()
+                    .MinimumLevel.Verbose()
+                    .WriteTo.Console()
+                    .WriteTo.File("logs/log.txt", rollingInterval: RollingInterval.Day)
+                    .WriteTo.File("logs/errorlog.txt",
+                    restrictedToMinimumLevel: Serilog.Events.LogEventLevel.Information)
+                    .CreateLogger();
+
                 string authenticationString = ConfigurationManager
                     .ConnectionStrings["MediaTekDocuments.Properties.Settings.AuthString"]
                     .ConnectionString;
@@ -71,7 +82,7 @@ namespace MediaTekDocuments.dal
             }
             catch (Exception e)
             {
-                Console.WriteLine(e.Message);
+                Log.Fatal(e, "Erreur fatale lors de l'initialisation de l'API REST.");
                 Environment.Exit(0);
             }
         }
@@ -120,7 +131,7 @@ namespace MediaTekDocuments.dal
         }
 
         /// <summary>
-        /// Retourne toutes les livres à partir de la BDD
+        /// Retourne tous les livres à partir de la BDD
         /// </summary>
         /// <returns>Liste d'objets Livre</returns>
         public List<Livre> GetAllLivres()
@@ -130,7 +141,7 @@ namespace MediaTekDocuments.dal
         }
 
         /// <summary>
-        /// Retourne toutes les dvd à partir de la BDD
+        /// Retourne tous les dvd à partir de la BDD
         /// </summary>
         /// <returns>Liste d'objets Dvd</returns>
         public List<Dvd> GetAllDvd()
@@ -162,8 +173,7 @@ namespace MediaTekDocuments.dal
         /// <summary>
         /// Récupère la liste complète des états disponibles.
         /// </summary>
-        /// <returns>Une liste d'objets <see cref="Etat"/> représentant tous les états. La liste est vide s'il n'existe aucun
-        /// état.</returns>
+        /// <returns>Une liste d'objets <see cref="Etat"/> représentant tous les états.</returns>
         public List<Etat> GetAllEtats()
         {
             List<Etat> lesEtats = TraitementRecup<Etat>(GET, "etat", null);
@@ -177,11 +187,10 @@ namespace MediaTekDocuments.dal
         /// <returns>Liste d'objets Exemplaire</returns>
         public List<Exemplaire> GetExemplairesDocument(string idDocument)
         {
-            Debug.WriteLine("idDocument dans GetExemplairesDocument : " + idDocument);
+            Log.Debug("Récupération des exemplaires pour le document {IdDocument}", idDocument);
             String jsonIdDocument = ConvertToJson("id", idDocument);
-            Debug.WriteLine(jsonIdDocument);
             List<Exemplaire> lesExemplaires = TraitementRecup<Exemplaire>(GET, "exemplaire/" + jsonIdDocument, null);
-            Debug.WriteLine($"Nombre d'exemplaires récupérés : {lesExemplaires.Count}");
+            Log.Debug("{Count} exemplaires récupérés pour le document {IdDocument}", lesExemplaires.Count, idDocument);
             return lesExemplaires;
         }
 
@@ -189,7 +198,7 @@ namespace MediaTekDocuments.dal
         /// ecriture d'un exemplaire en base de données
         /// </summary>
         /// <param name="exemplaire">exemplaire à insérer</param>
-        /// <returns>true si l'insertion a pu se faire (retour != null)</returns>
+        /// <returns>true si l'insertion s'est bien déroulée</returns>
         public bool CreerExemplaire(Exemplaire exemplaire)
         {
             String jsonExemplaire = JsonConvert.SerializeObject(exemplaire, new CustomDateTimeConverter());
@@ -200,21 +209,18 @@ namespace MediaTekDocuments.dal
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex.Message);
+                Log.Error(ex, "Erreur lors de la création de l'exemplaire.");
             }
             return false;
         }
+        
         /// <summary>
-        /// Exécute une commande API distante. 
-        /// Crée pour pouvoir récupérer le json de l'API et en affichant 
-        /// les champs "code" et "result" de la réponse. 
-        /// Retourne true si le code de réponse est "200" et que le résultat est supérieur à zéro ; 
-        /// sinon, retourne false.
-        /// /// <param name="methode">La méthode HTTP à utiliser pour l'appel API, telle que "GET" ou "POST". Ne peut pas être null ou vide.</param>
-        /// <param name="endpoint">L'URL ou le chemin de l'endpoint de l'API à appeler. Ne peut pas être null ou vide.</param>
-        /// <param name="parametres">Les paramètres à inclure dans la requête API, sous forme de chaîne. Peut être vide si aucun paramètre n'est
-        /// requis.</param>
-        /// <returns>true si la commande API retourne un code de réponse "200" et un résultat supérieur à zéro ; sinon, false.</returns>
+        /// Exécute une commande API distante et analyse la réponse JSON.
+        /// </summary>
+        /// <param name="methode">La méthode HTTP à utiliser pour l'appel API (GET, POST, etc.)</param>
+        /// <param name="endpoint">L'URL ou le chemin de l'endpoint de l'API à appeler</param>
+        /// <param name="parametres">Les paramètres à inclure dans la requête API</param>
+        /// <returns>true si la commande API retourne un code de réponse "200" et un résultat supérieur à zéro, sinon false.</returns>
         private bool ExecuteCommande(string methode, string endpoint, string parametres)
         {
             try
@@ -229,15 +235,11 @@ namespace MediaTekDocuments.dal
                     int.TryParse(retour[RESULT].ToString(), out result);
                 }
 
-                Debug.WriteLine($"Code API : {code}");
-                Debug.WriteLine($"Résultat API : {result}");
-
                 return code == "200" && result > 0;
             }
             catch (Exception ex)
             {
-                Debug.WriteLine("Catch de la méthode Access.ExecuteCommande");
-                Debug.WriteLine(ex.Message);
+                Log.Error(ex, "Erreur lors de l'exécution de la commande {Methode} sur {Endpoint}", methode, endpoint);
                 return false;
             }
         }
@@ -245,45 +247,33 @@ namespace MediaTekDocuments.dal
         /// <summary>
         /// Ajoute un document à la base de données
         /// </summary>
-        /// <remarks>Cette méthode tente de sérialiser et d'envoyer le document à un service distant. Si
-        /// une erreur se produit lors de l'opération, la méthode retourne false et aucune exception n'est
-        /// propagée.</remarks>
-        /// <param name="document">Le document à ajouter. Ne peut pas être null.</param>
+        /// <param name="document">Le document à ajouter.</param>
         /// <returns>true si le document a été ajouté avec succès ; sinon, false.</returns>
         public bool AjouterDocument(Document document)
         {
             string endpoint = document.Endpoint;
-            Debug.WriteLine($"Endpoint pour la création : {endpoint}");
-
             string json = JsonConvert.SerializeObject(document, new CustomDateTimeConverter());
-            Debug.WriteLine($"JSON envoyé pour la création : {json}");
-
+            
             try
             {
                 return ExecuteCommande(POST, endpoint, CHAMPS + json);
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex.Message);
+                Log.Error(ex, "Erreur lors de l'ajout du document.");
                 return false;
             }
         }
 
         /// <summary>
-        /// Met à jour un document existant dans la base de données
+        /// Met à jour un document existant dans la base de données via une requête HTTP PUT.
         /// </summary>
-        /// <remarks>Cette méthode tente de mettre à jour le document spécifié via une requête HTTP PUT.
-        /// Si une erreur se produit lors de la communication avec l'API ou si la réponse n'est pas valide, la méthode
-        /// retourne false.</remarks>
-        /// <param name="document">Le document à modifier. Ne peut pas être null. Les propriétés du document déterminent les champs mis à jour.</param>
-        /// <returns>true si la modification du document a réussi ; sinon, false.</returns>
+        /// <param name="document">Le document à modifier.</param>
+        /// <returns>true si la modification a réussi ; sinon, false.</returns>
         public bool ModifierDocument(Document document)
         {
             string endpoint = $"{document.Endpoint}/{document.Id}";
-            Debug.WriteLine($"Endpoint pour la modification : {endpoint}");
-
             string json = JsonConvert.SerializeObject(document, new CustomDateTimeConverter());
-            Debug.WriteLine($"JSON envoyé pour la modification : {json}");
 
             try
             {
@@ -291,11 +281,16 @@ namespace MediaTekDocuments.dal
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex.Message);
+                Log.Error(ex, "Erreur lors de la modification du document {Id}.", document.Id);
                 return false;
             }
         }
 
+        /// <summary>
+        /// Supprime un document de la base de données via une requête HTTP DELETE.
+        /// </summary>
+        /// <param name="document">Le document à supprimer.</param>
+        /// <returns>true si la suppression a réussi ; sinon, false.</returns>
         public bool SupprimerDocument(Document document)
         {
             string json = JsonConvert.SerializeObject(new
@@ -304,10 +299,7 @@ namespace MediaTekDocuments.dal
             });
 
             string encodedJson = Uri.EscapeDataString(json);
-
             string endpoint = $"{document.Endpoint}/{encodedJson}";
-
-            Debug.WriteLine($"Endpoint pour la suppression : {endpoint}");
 
             try
             {
@@ -315,7 +307,7 @@ namespace MediaTekDocuments.dal
             }
             catch (Exception ex)
             {
-                Debug.WriteLine(ex.Message);
+                Log.Error(ex, "Erreur lors de la suppression du document {Id}.", document.Id);
                 return false;
             }
         }
@@ -349,12 +341,12 @@ namespace MediaTekDocuments.dal
                 }
                 else
                 {
-                    Console.WriteLine("code erreur = " + code + " message = " + (String)retour["message"]);
+                    Log.Error("code erreur = {Code} message = {Message}", code, (string)retour["message"]);
                 }
             }
             catch (Exception e)
             {
-                Console.WriteLine("Erreur lors de l'accès à l'API : " + e.Message);
+                Log.Fatal(e, "Erreur fatale lors de l'accès à l'API.");
                 Environment.Exit(0);
             }
             return liste;
@@ -406,6 +398,11 @@ namespace MediaTekDocuments.dal
 
         #region commandes
 
+        /// <summary>
+        /// Récupère toutes les commandes liées à un type de media (livre ou dvd)
+        /// </summary>
+        /// <param name="type">Type de media concerné</param>
+        /// <returns>Liste des commandes de documents</returns>
         public List<CommandeDocument> GetAllCommandesDocuments(TypeMedia type)
         {
             string endpoint;
@@ -420,15 +417,17 @@ namespace MediaTekDocuments.dal
                     throw new ArgumentException("TypeMedia invalide");
             }
             String jsonType = ConvertToJson("typemedia", type.ToString().ToLower());
-            Debug.WriteLine(jsonType);
             return TraitementRecup<CommandeDocument>(GET, endpoint + jsonType, null);
         }
 
+        /// <summary>
+        /// Ajoute une commande en base de données.
+        /// </summary>
+        /// <param name="commande">L'objet commande à insérer</param>
+        /// <returns>true si l'opération a réussi, false sinon</returns>
         public bool AjouterCommande(Commande commande)
         {
             string json = JsonConvert.SerializeObject(commande, new CustomDateTimeConverter());
-
-            Debug.WriteLine("json dans AjouterCommande : " + json);
 
             try
             {
@@ -436,18 +435,20 @@ namespace MediaTekDocuments.dal
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex.Message);
+                Log.Error(ex, "Erreur lors de l'ajout de la commande.");
                 return false;
             }
         }
 
+        /// <summary>
+        /// Modifie une commande existante en base de données.
+        /// </summary>
+        /// <param name="commande">La commande modifiée</param>
+        /// <returns>true si la modification a réussi, false sinon</returns>
         public bool ModifierCommande(Commande commande)
         {
             string endpoint = $"{commande.Endpoint}/{commande.Id}";
             string json = JsonConvert.SerializeObject(commande, new CustomDateTimeConverter());
-
-            Debug.WriteLine("endpoint dans ModifierCommande : " + endpoint);
-            Debug.WriteLine("json dans ModifierCommande : " + json);
 
             try
             {
@@ -455,16 +456,20 @@ namespace MediaTekDocuments.dal
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex.Message);
+                Log.Error(ex, "Erreur lors de la modification de la commande {Id}.", commande.Id);
                 return false;
             }
         }
 
+        /// <summary>
+        /// Supprime une commande de la base de données.
+        /// </summary>
+        /// <param name="commande">La commande à supprimer</param>
+        /// <returns>true si la suppression a réussi, false sinon</returns>
         public bool SupprimerCommande(Commande commande)
         {
             string json = JsonConvert.SerializeObject(new { id = commande.Id });
             string encodedJson = Uri.EscapeDataString(json);
-
             string endpoint = $"{commande.Endpoint}/{encodedJson}";
 
             try
@@ -473,7 +478,7 @@ namespace MediaTekDocuments.dal
             }
             catch (Exception ex)
             {
-                Debug.WriteLine(ex.Message);
+                Log.Error(ex, "Erreur lors de la suppression de la commande {Id}.", commande.Id);
                 return false;
             }
         }
@@ -482,18 +487,31 @@ namespace MediaTekDocuments.dal
 
         #region abonnements
 
+        /// <summary>
+        /// Récupère la liste de tous les abonnements.
+        /// </summary>
+        /// <returns>Liste des abonnements</returns>
         public List<Abonnement> GetAllAbonnements()
         {
             return TraitementRecup<Abonnement>(GET, "abonnement", null);
         }
 
+        /// <summary>
+        /// Récupère les alertes pour les abonnements expirant dans un délai précis.
+        /// </summary>
+        /// <param name="jours">Nombre de jours avant l'expiration</param>
+        /// <returns>Liste d'alertes d'abonnement</returns>
         public List<AlerteAbonnement> GetAbonnementsExpirantDans(int jours)
         {
             String jsonJours = ConvertToJson("jours", jours);
-            Debug.WriteLine(jsonJours);
             return TraitementRecup<AlerteAbonnement>(GET, "abonnements_expirant_dans/" + jsonJours, null);
         }
 
+        /// <summary>
+        /// Ajoute un nouvel abonnement en base de données.
+        /// </summary>
+        /// <param name="abonnement">L'abonnement à rajouter</param>
+        /// <returns>true si l'ajout a réussi, false sinon</returns>
         public bool AjouterAbonnement(Abonnement abonnement)
         {
             string json = JsonConvert.SerializeObject(abonnement, new CustomDateTimeConverter());
@@ -503,11 +521,16 @@ namespace MediaTekDocuments.dal
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex.Message);
+                Log.Error(ex, "Erreur lors de l'ajout de l'abonnement.");
                 return false;
             }
         }
 
+        /// <summary>
+        /// Supprime un abonnement de la base de données.
+        /// </summary>
+        /// <param name="abonnement">L'abonnement à supprimer</param>
+        /// <returns>true si la suppression a réussi, false sinon</returns>
         public bool SupprimerAbonnement(Abonnement abonnement)
         {
             string json = JsonConvert.SerializeObject(new { id = abonnement.Id });
@@ -519,7 +542,7 @@ namespace MediaTekDocuments.dal
             }
             catch (Exception ex)
             {
-                Debug.WriteLine(ex.Message);
+                Log.Error(ex, "Erreur lors de la suppression de l'abonnement {Id}.", abonnement.Id);
                 return false;
             }
         }
@@ -529,17 +552,14 @@ namespace MediaTekDocuments.dal
         #region exemplaires
 
         /// <summary>
-        /// Modifie l'exemplaire spécifié dans la collection ou la base de données distante.
+        /// Modifie un exemplaire dans la base de données distante.
         /// </summary>
-        /// <param name="exemplaire">L'exemplaire à modifier. Ne peut pas être null et doit contenir un identifiant valide.</param>
+        /// <param name="exemplaire">L'exemplaire à modifier.</param>
         /// <returns>true si l'exemplaire a été modifié avec succès ; sinon, false.</returns>
         public bool ModifierExemplaire(Exemplaire exemplaire)
         {
             string endpoint = $"exemplaire/{exemplaire.Id}";
             string json = JsonConvert.SerializeObject(exemplaire, new CustomDateTimeConverter());
-
-            Debug.WriteLine($"Endpoint pour la modification de l'exemplaire : {endpoint}");
-            Debug.WriteLine($"JSON envoyé pour la modification de l'exemplaire : {json}");
 
             try
             {
@@ -547,15 +567,15 @@ namespace MediaTekDocuments.dal
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex.Message);
+                Log.Error(ex, "Erreur lors de la modification de l'exemplaire {Id}.", exemplaire.Id);
                 return false;
             }
         }
 
         /// <summary>
-        /// Supprime l'exemplaire spécifié de la collection ou de la base de données distante.
+        /// Supprime un exemplaire de la base de données distante.
         /// </summary>
-        /// <param name="exemplaire">L'exemplaire à supprimer. Ne peut pas être null et doit contenir un identifiant valide.</param>
+        /// <param name="exemplaire">L'exemplaire à supprimer.</param>
         /// <returns>true si l'exemplaire a été supprimé avec succès ; sinon, false.</returns>
         public bool SupprimerExemplaire(Exemplaire exemplaire)
         {
@@ -567,16 +587,13 @@ namespace MediaTekDocuments.dal
             string encodedJson = Uri.EscapeDataString(json);
             string endpoint = $"exemplaire/{encodedJson}";
 
-            Debug.WriteLine($"JSON pour la suppression de l'exemplaire : {json}");
-
-            Debug.WriteLine($"Endpoint pour la suppression de l'exemplaire : {endpoint}");
             try
             {
                 return ExecuteCommande(DELETE, endpoint, null);
             }
             catch (Exception ex)
             {
-                Debug.WriteLine(ex.Message);
+                Log.Error(ex, "Erreur lors de la suppression de l'exemplaire {Id} (Numéro : {Numero}).", exemplaire.Id, exemplaire.Numero);
                 return false;
             }
         }
@@ -613,7 +630,7 @@ namespace MediaTekDocuments.dal
             }
             catch (Exception ex)
             {
-                Debug.WriteLine("Erreur Authentification : " + ex.Message);
+                Log.Error(ex, "Erreur lors de l'authentification de l'utilisateur {Login}.", login);
             }
 
             return null;
