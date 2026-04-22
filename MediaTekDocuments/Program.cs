@@ -26,10 +26,6 @@ namespace MediaTekDocuments
                     Utilisateur utilisateur = login.UtilisateurAuthentifie;
                     Application.Run(new FrmMediatek(utilisateur));
                 }
-                else
-                {
-                    return; // Fermer l'application si l'authentification échoue ou est annulée
-                }
             }
         }
     }
