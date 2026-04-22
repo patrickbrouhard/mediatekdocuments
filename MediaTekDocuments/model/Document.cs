@@ -29,7 +29,7 @@ namespace MediaTekDocuments.model
         [JsonIgnore]
         public abstract string Endpoint { get; }
 
-        public Document(string id, string titre, string image, string idGenre, string genre, string idPublic, string lePublic, string idRayon, string rayon)
+        protected Document(string id, string titre, string image, string idGenre, string genre, string idPublic, string lePublic, string idRayon, string rayon)
         {
             Id = id;
             Titre = titre;

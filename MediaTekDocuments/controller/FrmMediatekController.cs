@@ -18,7 +18,6 @@ namespace MediaTekDocuments.controller
         /// Objet d'accès aux données
         /// </summary>
         private readonly Access access;
-        private readonly AbonnementService abonnementService = new AbonnementService();
 
         /// <summary>
         /// Récupération de l'instance unique d'accès aux données
@@ -182,7 +181,7 @@ namespace MediaTekDocuments.controller
 
         public List<AlerteAbonnement> GetAbonnementsArrivantAExpiration()
         {
-            return access.getAbonnementsExpirantDans(30);
+            return access.GetAbonnementsExpirantDans(30);
         }
 
         public bool AJouterAbonnement(Abonnement abonnement)
@@ -198,7 +197,7 @@ namespace MediaTekDocuments.controller
         public bool PeutSupprimerAbonnement(Abonnement abonnement)
         {
             var exemplaires = GetExemplairesDocument(abonnement.IdRevue);
-            return abonnementService.PeutSupprimerAbonnement(
+            return AbonnementService.PeutSupprimerAbonnement(
                 abonnement,
                 exemplaires
             );
