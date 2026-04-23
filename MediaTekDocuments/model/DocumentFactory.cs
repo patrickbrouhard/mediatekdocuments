@@ -18,6 +18,8 @@ namespace MediaTekDocuments.model
     {
         public static Document Creer(CreerDocumentCommand cmd)
         {
+            VerifierCoherence(cmd.Id, cmd.Type);
+
             switch (cmd.Type)
             {
                 case TypeMedia.Livre:
@@ -60,6 +62,27 @@ namespace MediaTekDocuments.model
 
                 default:
                     throw new ArgumentException("TypeMedia inconnu");
+            }
+        }
+
+        /// <summary>
+        /// Vérifie la cohérence entre l'identifiant fourni et le type de média spécifié.
+        /// </summary>
+        /// <param name="id">L'identifiant du média à vérifier. Peut être null ou vide lors de la création d'un nouveau document.</param>
+        /// <param name="type">Le type de média auquel l'identifiant doit correspondre.</param>
+        /// <exception cref="ArgumentException">Levée si l'identifiant ne commence pas par le chiffre correspondant au type de média spécifié.</exception>
+        private static void VerifierCoherence(string id, TypeMedia type)
+        {
+            // Normal si c'est une création de document : id sera généré par l'API
+            if (string.IsNullOrEmpty(id))
+                return;
+
+            // Vérifie que l'ID commence par le chiffre correspondant au type de média
+            if ((type == TypeMedia.Livre && !id.StartsWith("0")) ||
+                (type == TypeMedia.Revue && !id.StartsWith("1")) ||
+                (type == TypeMedia.Dvd && !id.StartsWith("2")))
+            {
+                throw new ArgumentException("Incohérence entre le type et l'ID");
             }
         }
     }
