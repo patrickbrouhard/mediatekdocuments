@@ -74,6 +74,9 @@ namespace MediaTekDocuments.view
             this.utilisateur = utilisateur;
         }
 
+        /// <summary>
+        /// Charge les données initiales du formulaire et configure l'affichage selon les droits de l'utilisateur.
+        /// </summary>
         private void FrmMediatek_Load(object sender, EventArgs e)
         {
             if (utilisateur.PeutGererCommandes())
@@ -131,6 +134,11 @@ namespace MediaTekDocuments.view
             }
         }
 
+        /// <summary>
+        /// Remplit une ComboBox avec la liste des états de documents disponibles.
+        /// </summary>
+        /// <param name="lesEtats">La liste des états à afficher.</param>
+        /// <param name="cbx">La ComboBox à remplir.</param>
         public static void RemplirComboEtats(List<Etat> lesEtats, ComboBox cbx)
         {
             lesEtats = lesEtats
@@ -143,6 +151,13 @@ namespace MediaTekDocuments.view
             cbx.SelectedIndex = -1;
         }
 
+        /// <summary>
+        /// Vérifie que les champs de catégories obligatoires d'un document sont bien renseignés.
+        /// </summary>
+        /// <param name="unGenre">Le genre sélectionné.</param>
+        /// <param name="unPublic">Le public sélectionné.</param>
+        /// <param name="unRayon">Le rayon sélectionné.</param>
+        /// <returns>True si tous les champs sont valides, false sinon.</returns>
         public static bool AreChampsObligatoiresValides(Genre unGenre, Public unPublic, Rayon unRayon)
         {
             string message = "";
@@ -161,7 +176,7 @@ namespace MediaTekDocuments.view
         /// <summary>
         /// Affiche une boîte de dialogue indiquant le succès ou l'échec d'une opération à l'utilisateur.
         /// </summary>
-        /// <param name="succes">Indique si l'opération a réussi.
+        /// <param name="succes">Indique si l'opération a réussi.</param>
         /// <param name="operation">Le nom ou la description de l'opération à afficher dans le message. La valeur par défaut est "Opération".</param>
         public static void AfficheMessageSucces(bool succes, string operation = "Opération")
         {
@@ -175,6 +190,18 @@ namespace MediaTekDocuments.view
         }
 
 
+        /// <summary>
+        /// Crée ou met à jour un document (Livre, DVD ou Revue) dans la base de données.
+        /// </summary>
+        /// <param name="type">Le type du média concerné.</param>
+        /// <param name="id">L'identifiant du document (null si création).</param>
+        /// <param name="titre">Le titre du document.</param>
+        /// <param name="imageChemin">Le chemin d'accès vers l'image du document.</param>
+        /// <param name="genre">Le genre du document.</param>
+        /// <param name="lePublic">Le public cible du document.</param>
+        /// <param name="rayon">Le rayon où est rangé le document.</param>
+        /// <param name="isNewDoc">Indique s'il s'agit d'une création (true) ou d'une modification (false).</param>
+        /// <returns>True si l'opération a réussi, false sinon.</returns>
         private bool CreerDocument(TypeMedia type, string id, string titre, string imageChemin, Genre genre, Public lePublic, Rayon rayon, bool isNewDoc)
         {
             int.TryParse(txbDvdDuree.Text, out int duree);
@@ -239,6 +266,10 @@ namespace MediaTekDocuments.view
             DgvLivresListe_SelectionChanged(null, null);
         }
 
+        /// <summary>
+        /// Bascule l'interface de l'onglet Livres en mode édition ou consultation selon l'opération en cours.
+        /// </summary>
+        /// <param name="operation">L'opération en cours (Ajouter, Modifier, None).</param>
         private void SetModeLivre(Operation operation)
         {
             bool edition = (operation == Operation.Ajouter || operation == Operation.Modifier)
@@ -272,6 +303,10 @@ namespace MediaTekDocuments.view
             }
         }
 
+        /// <summary>
+        /// Récupère les catégories (Genre, Public, Rayon) actuellement sélectionnées pour un livre.
+        /// </summary>
+        /// <returns>Un tuple contenant le Genre, le Public et le Rayon choisis.</returns>
         private (Genre genre, Public publicObj, Rayon rayon) GetLivreSelections()
         {
             var genre = bdgGenres.OfType<Genre>()
@@ -424,9 +459,8 @@ namespace MediaTekDocuments.view
         }
 
         /// <summary>
-        /// Recherche et affichage des livres dont le titre matche acec la saisie.
-        /// Cette procédure est exécutée à chaque ajout ou suppression de caractère
-        /// dans le textBox de saisie.
+        /// Recherche et affichage des livres dont le titre correspond à la saisie.
+        /// Cette procédure est exécutée à chaque modification dans le champ de saisie.
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
@@ -454,7 +488,7 @@ namespace MediaTekDocuments.view
         }
 
         /// <summary>
-        /// Affichage des informations du livre sélectionné
+        /// Affiche les informations du livre sélectionné
         /// </summary>
         /// <param name="livre">le livre</param>
         private void AfficheLivresInfos(Livre livre)
@@ -721,6 +755,10 @@ namespace MediaTekDocuments.view
             }
         }
 
+        /// <summary>
+        /// Bascule l'interface du panneau des exemplaires de livres selon l'opération d'édition en cours.
+        /// </summary>
+        /// <param name="mode">L'opération d'édition en cours sur l'exemplaire.</param>
         private void SetModeExemplaireLivre(Operation mode)
         {
             bool edition = mode == Operation.Modifier
@@ -2386,6 +2424,13 @@ namespace MediaTekDocuments.view
             // une fois réglée, pas de transition possible
             { EtatSuivi.Reglee, new List<EtatSuivi>() }
         };
+
+        /// <summary>
+        /// Vérifie si le passage d'un état de suivi de commande à un autre est autorisé par les règles métiers.
+        /// </summary>
+        /// <param name="ancienEtat">L'état de suivi de départ.</param>
+        /// <param name="nouvelEtat">L'état de suivi souhaité d'arrivée.</param>
+        /// <returns>True si la transition est permise, false sinon.</returns>
         private static bool IsTransitionValide(EtatSuivi ancienEtat, EtatSuivi nouvelEtat)
         {
             // même état : pas de changement, donc valide
@@ -2396,6 +2441,9 @@ namespace MediaTekDocuments.view
             return transitionsAutorisees[ancienEtat].Contains(nouvelEtat);
         }
 
+        /// <summary>
+        /// Charge la liste globale de tous les suivis de commandes disponibles dans les ComboBox de l'interface.
+        /// </summary>
         private void ChargerSuivis()
         {
             var lesSuivis = controller.GetAllSuivis();
@@ -2409,7 +2457,12 @@ namespace MediaTekDocuments.view
             comboBoxCommandeDvdEtat.ValueMember = "IdSuivi";
         }
 
-
+        /// <summary>
+        /// Filtre et actualise les statuts sélectionnables dans une ComboBox selon les transitions de commandes autorisées.
+        /// </summary>
+        /// <param name="commande">La commande actuellement sélectionnée (null lors d'un ajout).</param>
+        /// <param name="comboBox">La liste déroulante des états à restreindre.</param>
+        /// <param name="operationEnCours">L'opération logicielle actuelle (Ajout, Modification).</param>
         private void FiltrerEtatsSuivisDisponibles(CommandeDocument commande, ComboBox comboBox, Operation operationEnCours)
         {
             if (commande == null && operationEnCours != Operation.Ajouter) return;
@@ -2525,13 +2578,12 @@ namespace MediaTekDocuments.view
                 return;
             }
 
-            operationEnCours = Operation.Modifier;
-            SetModeCommandeLivre(operationEnCours);
+            SetModeCommandeLivre(Operation.Modifier);
 
             RemplirCommande(commande);
             RemplirDetailsLivre(commande);
 
-            FiltrerEtatsSuivisDisponibles(commande, comboBoxCommandeLivreEtat, operationEnCours);
+            FiltrerEtatsSuivisDisponibles(commande, comboBoxCommandeLivreEtat, Operation.Modifier);
         }
 
         private void buttonCommandeLivreSupprimer_Click(object sender, EventArgs e)
@@ -3086,6 +3138,7 @@ namespace MediaTekDocuments.view
             SetModeCommandeDvd(Operation.None);
             tabCommandeDvd_Enter(null, null);
 
+            // Repositionnement sur le premier élément
             if (lesCommandesDvds.Any())
             {
                 bdgCommandeDvdsListe.Position = 0;
@@ -3825,6 +3878,11 @@ namespace MediaTekDocuments.view
 
         #region Exemplaires
 
+        /// <summary>
+        /// Initialise l'affichage et les colonnes spécifiques d'un DataGridView dédié à la liste des exemplaires.
+        /// </summary>
+        /// <param name="dgv">Le DataGridView à initialiser.</param>
+        /// <param name="source">Le BindingSource qui viendra se greffer au DataGridView.</param>
         private void InitGridExemplaires(DataGridView dgv, BindingSource source)
         {
             dgv.AutoGenerateColumns = false;
@@ -3859,6 +3917,13 @@ namespace MediaTekDocuments.view
             dgv.DataSource = source;
         }
 
+        /// <summary>
+        /// Trie une liste d'exemplaires en fonction du nom de la colonne qui a été cliquée par l'utilisateur.
+        /// </summary>
+        /// <param name="dgv">Le DataGridView à partir duquel l'événement a été déclenché.</param>
+        /// <param name="liste">La liste des exemplaires à trier.</param>
+        /// <param name="columnIndex">L'index de la colonne utilisée pour définir le tri.</param>
+        /// <returns>La liste ordonnée des exemplaires de documents.</returns>
         private static List<Exemplaire> TrierExemplaires(DataGridView dgv, List<Exemplaire> liste, int columnIndex)
         {
             string titreColonne = dgv.Columns[columnIndex].HeaderText;

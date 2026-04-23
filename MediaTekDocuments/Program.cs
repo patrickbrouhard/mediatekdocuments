@@ -5,6 +5,10 @@ using System.Windows.Forms;
 
 namespace MediaTekDocuments
 {
+    /// <summary>
+    /// Point d'entrée principal de l'application MediaTekDocuments. Cette classe configure les paramètres d'affichage et
+    /// initialise l'interface utilisateur principale après une authentification réussie.
+    /// </summary>
     static class Program
     {
         /// <summary>
