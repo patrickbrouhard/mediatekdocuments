@@ -75,26 +75,25 @@ namespace MediaTekDocuments.UnitTests
         }
 
         [TestMethod]
-        public void Creer_TypeEtIdIncoherent_DoitEtreDetecte()
+        public void Creer_IdIncoherent_DoitLeverException()
         {
             var cmd = new CreerDocumentCommand
             {
-                Type = TypeMedia.Livre, // Type est Livre
-                Id = "20003", // ID de DVD
-                Titre = "Incohérent",
-                Image = "img.jpg",
-                Isbn = "123",
-                Auteur = "Auteur",
-                Collection = "Collection",
-                IdGenre = "G1",
-                IdPublic = "P1",
-                IdRayon = "R1"
+                Type = TypeMedia.Livre,
+                Id = "20003" // ID de DVD
             };
 
-            var result = DocumentFactory.Creer(cmd);
-
-            Assert.IsTrue(result.Id.StartsWith("0"),
-                "Un livre doit avoir un ID commençant par 0");
+            try
+            {
+                DocumentFactory.Creer(cmd);
+                
+                // Si la ligne précédente ne lève pas d'exception, on fait échouer le test
+                Assert.Fail("Une ArgumentException était attendue, mais aucune exception n'a été levée.");
+            }
+            catch (ArgumentException)
+            {
+                // L'exception a bien été interceptée, le test est un succès.
+            }
         }
     }
 }

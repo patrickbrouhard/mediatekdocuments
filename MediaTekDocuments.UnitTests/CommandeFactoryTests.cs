@@ -112,19 +112,25 @@ namespace MediaTekDocuments.UnitTests
         }
 
         [TestMethod]
-        public void Creer_Livre_AvecIdRevue_NeDevraitPasEtrePossible()
+        public void Creer_Livre_AvecIdRevue_DoitLeverException()
         {
             var cmd = new CreerCommandeCommand
             {
                 Type = TypeMedia.Livre,
                 Id = "006",
-                IdRevue = "10001" // incohérent
+                IdRevue = "20003"
             };
 
-            var result = CommandeFactory.Creer(cmd);
+            try
+            {
+                CommandeFactory.Creer(cmd);
 
-            Assert.IsNull((result as CommandeDocument).IdLivreDvd,
-                "Une commande de livre ne devrait pas contenir d'id revue");
+                Assert.Fail("Une ArgumentException était attendue, mais aucune exception n'a été levée.");
+            }
+            catch (ArgumentException)
+            {
+                // L'exception a bien été interceptée, le test est un succès.
+            }
         }
     }
 }
