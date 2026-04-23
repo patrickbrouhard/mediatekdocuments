@@ -16,6 +16,15 @@ namespace MediaTekDocuments.model
     /// le Factory Pattern : https://www.youtube.com/watch?v=BJatgOiiht4&t=1199s</remarks>
     public static class DocumentFactory
     {
+        /// <summary>
+        /// Crée une nouvelle instance de document correspondant au type spécifié dans la commande.
+        /// </summary>
+        /// <remarks>Le type de document créé dépend de la valeur de la propriété Type de la commande. Les
+        /// types pris en charge sont Livre, Dvd et Revue.</remarks>
+        /// <param name="cmd">La commande contenant les informations nécessaires à la création du document, y compris l'identifiant, le
+        /// type de média et les propriétés associées. Ne peut pas être null. Le type de média doit être pris en charge.</param>
+        /// <returns>Une instance de la classe dérivée de Document correspondant au type de média spécifié dans la commande.</returns>
+        /// <exception cref="ArgumentException">Levée si le type de média spécifié dans la commande n'est pas reconnu.</exception>
         public static Document Creer(CreerDocumentCommand cmd)
         {
             VerifierCoherence(cmd.Id, cmd.Type);

@@ -3,6 +3,12 @@ using MediaTekDocuments.model;
 
 namespace MediaTekDocuments.controller
 {
+    /// <summary>
+    /// Contrôle le processus d'authentification des utilisateurs en utilisant l'accès aux données API.
+    /// </summary>
+    /// <remarks>Cette classe encapsule la logique d'authentification et délègue les opérations d'accès aux
+    /// données à une instance unique d'Access. Elle est destinée à être utilisée en interne pour gérer la connexion des
+    /// utilisateurs dans l'application.</remarks>
     internal class FrmAuthentificationController
     {
         /// <summary>

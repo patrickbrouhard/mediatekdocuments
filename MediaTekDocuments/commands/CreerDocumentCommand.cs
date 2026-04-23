@@ -7,6 +7,15 @@ using static MediaTekDocuments.view.FrmMediatek;
 
 namespace MediaTekDocuments.commands
 {
+    /// <summary>
+    /// Représente une commande pour créer un document, incluant les informations nécessaires selon le type de média
+    /// (livre, DVD ou revue).
+    /// </summary>
+    /// <remarks>Utilisez cette classe pour transmettre toutes les données requises lors de la création d'un
+    /// nouveau document dans le système. Certains champs sont spécifiques à un type de média et peuvent rester non
+    /// renseignés pour les autres types. Par exemple, les propriétés 'Isbn', 'Auteur' et 'Collection' concernent
+    /// uniquement les livres, tandis que 'Duree', 'Realisateur' et 'Synopsis' sont propres aux DVD. 'Periodicite' et
+    /// 'DelaiMiseADispo' sont utilisés pour les revues.</remarks>
     public class CreerDocumentCommand
     {
         public TypeMedia Type { get; set; }
