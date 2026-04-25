@@ -1,0 +1,41 @@
+name: Build et publier l'installer
+
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+      - name: Récupération du dépôt
+        uses: actions/checkout@v4
+
+      - name: Configuration de MSBuild
+        uses: microsoft/setup-msbuild@v2
+
+      - name: Restauration des dépendances NuGet
+        run: nuget restore MediaTekDocuments.sln
+
+      - name: Build la solution (Release)
+        run: msbuild MediaTekDocuments.sln /p:Configuration=Release
+
+      - name: Installation de Inno Setup
+        run: choco install innosetup -y
+
+      - name: Définir la version
+        run: echo "APP_VERSION=${GITHUB_REF_NAME#v}" >> $env:GITHUB_ENV
+
+      - name: Build installer
+        run: iscc setup.iss
+
+      - name: Upload sur GitHub Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: installer/*.exe
