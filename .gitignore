@@ -371,3 +371,6 @@ FodyWeavers.xsd
 # Fichiers de logs
 logs/
 *.log
+
+# Inno Setup
+installer/
