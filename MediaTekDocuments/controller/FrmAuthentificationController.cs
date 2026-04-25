@@ -34,5 +34,10 @@ namespace MediaTekDocuments.controller
         {
             return access.Authentifier(login, password);
         }
+
+        public string GetApiSource()
+        {
+            return access.GetApiSource();
+        }
     }
 }

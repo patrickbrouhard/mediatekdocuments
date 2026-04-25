@@ -4,15 +4,16 @@ using MediaTekDocuments.model;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Linq;
+using Serilog;
 using System;
 using System.Collections.Generic;
 using System.Configuration;
 using System.Linq;
 using System.Net;
 using System.Security.Cryptography;
+using System.Windows.Forms;
 using System.Xml.Linq;
 using static MediaTekDocuments.view.FrmMediatek;
-using Serilog;
 
 namespace MediaTekDocuments.dal
 {
@@ -22,9 +23,30 @@ namespace MediaTekDocuments.dal
     public class Access
     {
         /// <summary>
-        /// adresse de l'API
+        /// Représente l'URL de l'API à laquelle la classe Access se connecte.
         /// </summary>
-        private static readonly string uriApi = ConfigurationManager.AppSettings["ApiBaseUrl"];
+        private static readonly string uriApi;
+        /// <summary>
+        /// Représente la source de l'API utilisée par la classe Access. Utilisée pour l'UI.
+        /// </summary>
+        private static readonly string ApiSource;
+
+        /// <summary>
+        /// Initialise les variables statiques uriApi et ApiSource en fonction de 
+        /// la configuration de l'application et du mode de compilation (debug ou release). 
+        /// Les valeurs sont récupérées à partir du fichier de configuration de l'application, 
+        /// ce qui permet de changer facilement l'URL de l'API sans modifier le code.
+        static Access()
+        {
+        #if DEBUG
+            uriApi = ConfigurationManager.AppSettings["ApiLocalUrl"];
+            ApiSource = "MDK-86 Local";
+        #else
+            uriApi = ConfigurationManager.AppSettings["ApiOnlineUrl"];
+            ApiSource = "MDK-86 Online";
+        #endif
+        }
+
         /// <summary>
         /// instance unique de la classe
         /// </summary>
@@ -85,6 +107,15 @@ namespace MediaTekDocuments.dal
                 Log.Fatal(e, "Erreur fatale lors de l'initialisation de l'API REST.");
                 Environment.Exit(0);
             }
+        }
+
+        /// <summary>
+        /// Récupère la source de l'API à partir du fichier de configuration de l'application.
+        /// </summary>
+        /// <returns>Un simple string représentant la source de l'API.</returns>
+        public string GetApiSource()
+        {
+            return ApiSource;
         }
 
         /// <summary>
