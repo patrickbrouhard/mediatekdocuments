@@ -2,14 +2,26 @@
 Cette application permet de gérer les documents (livres, DVD, revues) d'une médiathèque. Elle a été codée en C# sous Visual Studio 2019. C'est une application de bureau, prévue d'être installée sur plusieurs postes accédant à la même base de données.<br>
 L'application exploite une API REST pour accéder à la BDD MySQL. Des explications sont données plus loin, ainsi que le lien de récupération.
 ## Présentation
-Actuellement l'application est partiellement codée. Voici les fonctionnalités actuellement opérationnelles : recherches et affichage d'informations sur les documents de la médiathèque (livres, DVD, revues), réception de nouveaux numéros de revues.<br>
-![img1](https://github.com/CNED-SLAM/MediaTekDocuments/assets/100127886/9b5a4c1b-6914-4455-94bf-fec24adba3ec)
+L'application d'origine était partiellement codée (https://github.com/CNED-SLAM/MediaTekDocuments).
+A présent, elle permet également de:
+- Gérer les documents, les commandes, le suivi de l'état des exemplaires
+- Mettre en place des authentifications avec restrictions d'accès
+- D'être déployée automatiquement
+
 <br>L'application ne comporte qu'une seule fenêtre divisée en plusieurs onglets.
+
+## Authentification
+
+<img width="760" height="237" alt="login" src="https://github.com/user-attachments/assets/683976fc-866c-4789-80ea-c9900a82476a" /><br>
+A gauche, la version locale (dev) avec login prérempli et connexion à la base de données locale, à droite la version de production (release) avec login vide et connexion à la base de données distante).
+
 ## Les différents onglets
+
 ### Onglet 1 : Livres
 Cet onglet présente la liste des livres, triée par défaut sur le titre.<br>
 La liste comporte les informations suivantes : titre, auteur, collection, genre, public, rayon.
 ![img2](https://github.com/CNED-SLAM/MediaTekDocuments/assets/100127886/e3f31979-cf24-416d-afb1-a588356e8966)
+
 #### Recherches
 <strong>Par le titre :</strong> Il est possible de rechercher un ou plusieurs livres par le titre. La saisie dans la zone de recherche se fait en autocomplétions sans tenir compte de la casse. Seuls les livres concernés apparaissent dans la liste.<br>
 <strong>Par le numéro :</strong> il est possible de saisir un numéro et, en cliquant sur "Rechercher", seul le livre concerné apparait dans la liste (ou un message d'erreur si le livre n'est pas trouvé, avec la liste remplie à nouveau).
@@ -23,6 +35,11 @@ Le fait de cliquer sur le titre d'une des colonnes de la liste des livres, perme
 #### Affichage des informations détaillées
 Si la liste des livres contient des éléments, par défaut il y en a toujours un de sélectionné. Il est aussi possible de sélectionner une ligne (donc un livre) en cliquant n'importe où sur la ligne.<br>
 La partie basse de la fenêtre affiche les informations détaillées du livre sélectionné (numéro de document, code ISBN, titre, auteur(e), collection, genre, public, rayon, chemin de l'image) ainsi que l'image.
+
+#### Fonctionnalités de gestion ajoutées (exemple)
+
+<img width="1327" height="1231" alt="featured" src="https://github.com/user-attachments/assets/63565dbb-6f7a-4339-b08d-424098ba8410" />
+
 ### Onglet 2 : DVD
 Cet onglet présente la liste des DVD, triée par titre.<br>
 La liste comporte les informations suivantes : titre, durée, réalisateur, genre, public, rayon.<br>
@@ -45,11 +62,15 @@ Cette partie n'est accessible que si une revue a bien été trouvée dans la pre
 Il est possible alors de réceptionner une nouvelle parution en saisissant son numéro, en sélectionnant une date (date du jour proposée par défaut) et en cherchant l'image correspondante (optionnel) qui doit alors s'afficher à droite.<br>
 Le clic sur "Valider la réception" va permettre d'ajouter un tuple dans la table Exemplaire de la BDD. La parution correspondante apparaitra alors automatiquement dans la liste des parutions et les zones de la partie "Nouvelle parution réceptionnée pour cette revue" seront réinitialisées.<br>
 Si le numéro de la parution existe déjà, il n’est pas ajouté et un message est affiché.
-![img3](https://github.com/CNED-SLAM/MediaTekDocuments/assets/100127886/225e10f2-406a-4b5e-bfa9-368d45456056)
+
 ## La base de données
 La base de données 'mediatek86 ' est au format MySQL.<br>
-Voici sa structure :<br>
+Voici sa structure de départ :<br>
 ![img4](https://github.com/CNED-SLAM/MediaTekDocuments/assets/100127886/4314f083-ec8b-4d27-9746-fecd1387d77b)
+
+Structure finale :
+<img width="1052" height="1146" alt="schema-conceptuel-de-donnees" src="https://github.com/user-attachments/assets/feeb79fd-5cee-4fb8-904c-6fd16b067f09" />
+
 <br>On distingue les documents "génériques" (ce sont les entités Document, Revue, Livres-DVD, Livre et DVD) des documents "physiques" qui sont les exemplaires de livres ou de DVD, ou bien les numéros d’une revue ou d’un journal.<br>
 Chaque exemplaire est numéroté à l’intérieur du document correspondant, et a donc un identifiant relatif. Cet identifiant est réel : ce n'est pas un numéro automatique. <br>
 Un exemplaire est caractérisé par :<br>
